@@ -1,8 +1,18 @@
 inThisBuild(
   List(
     organization := "Timothy McCarthy",
+    homepage := Some(url("https://github.com/tmccarthy")),
     startYear := Some(2019),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer(
+        "tmccarthy",
+        "Timothy McCarthy",
+        "ebh042@gmail.com",
+        url("http://tmm.id.au"),
+      )
+    ),
+    scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/java-time-4s"), "scm:git:https://github.com/tmccarthy/java-time-4s.git")),
   )
 )
 
