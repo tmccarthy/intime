@@ -1,3 +1,5 @@
+import org.eclipse.jgit.api.Git
+
 inThisBuild(
   List(
     organization := "Timothy McCarthy",
@@ -13,17 +15,18 @@ inThisBuild(
       )
     ),
     scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/java-time-4s"), "scm:git:https://github.com/tmccarthy/java-time-4s.git")),
+    version := Git.open(root.base).describe().setTags(true).call()
   )
 )
 
 lazy val commonSettings = Def.settings(
   scalaVersion := "2.12.8",
   crossScalaVersions := Seq("2.11.12", "2.12.8"),
-  version := "0.0.0",
 )
 
 lazy val root = project
   .in(file("."))
+  .settings(commonSettings)
   .settings(
     skip in publish := true,
     console := (console in Compile in core).value,
@@ -33,7 +36,6 @@ lazy val root = project
     core,
     interopCats,
   )
-  .enablePlugins(GitVersioning)
 
 lazy val core = project
   .in(file("core"))
@@ -45,7 +47,6 @@ lazy val core = project
       "au.id.tmm"     %% "tmm-test-utils" % "0.2.15",
     )
   )
-  .enablePlugins(GitVersioning)
 
 lazy val interopCats = project
   .in(file("interop/cats"))
@@ -57,5 +58,4 @@ lazy val interopCats = project
     )
   )
   .dependsOn(core)
-  .enablePlugins(GitVersioning)
 
