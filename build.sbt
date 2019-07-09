@@ -1,4 +1,7 @@
 import org.eclipse.jgit.api.Git
+import MakeProjects._
+
+addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 
 inThisBuild(
   List(
@@ -15,23 +18,14 @@ inThisBuild(
       )
     ),
     scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/java-time-4s"), "scm:git:https://github.com/tmccarthy/java-time-4s.git")),
-    version := Git.open(root.base).describe().setTags(true).call()
+    version := Git.open(root.base).describe().setTags(true).call(),
   )
-)
-
-lazy val commonSettings = Def.settings(
-  scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", "2.12.8"),
 )
 
 lazy val root = project
   .in(file("."))
-  .settings(commonSettings)
-  .settings(
-    skip in publish := true,
-    console := (console in Compile in core).value,
-    name := "java-time-4s",
-  )
+  .settings(rootProjectSettings)
+  .settings(console := (console in Compile in core).value)
   .aggregate(
     core,
     interopCats,
@@ -39,23 +33,11 @@ lazy val root = project
 
 lazy val core = project
   .in(file("core"))
-  .settings(name := "java-time-4s-core")
-  .settings(commonSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest"      % "3.0.3",
-      "au.id.tmm"     %% "tmm-test-utils" % "0.2.15",
-    )
-  )
+  .settings(subProjectSettings("core"))
 
 lazy val interopCats = project
   .in(file("interop/cats"))
-  .settings(name := "java-time-4s-cats-interop")
-  .settings(commonSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core"   % "1.6.1"
-    )
-  )
+  .settings(subProjectSettings("cats-interop"))
+  .settings(DependencySettings.catsDependency)
   .dependsOn(core)
 
