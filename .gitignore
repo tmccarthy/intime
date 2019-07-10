@@ -1,9 +1,7 @@
 *.class
 *.log
 
-/.idea/*
-!.idea/runConfigurations
-!.idea/runConfigurations/*
+/.idea
 *.iml
 
 dist/*
