@@ -13,9 +13,9 @@ trait Syntaxes {
   implicit class DurationSyntax(duration: Duration) extends OrderingOps[Duration](duration) {
     def +(temporalAmount: Duration): Duration = duration.plus(temporalAmount)
     def -(temporalAmount: Duration): Duration = duration.minus(temporalAmount)
-    def /(divisor: Long): Duration = duration.dividedBy(divisor)
-    def *(multiplicand: Long): Duration = duration.multipliedBy(multiplicand)
-    def unary_- : Duration = duration.negated()
+    def /(divisor: Long): Duration            = duration.dividedBy(divisor)
+    def *(multiplicand: Long): Duration       = duration.multipliedBy(multiplicand)
+    def unary_- : Duration                    = duration.negated()
   }
 
   implicit class InstantSyntax(instant: Instant) extends OrderingOps[Instant](instant) {
@@ -38,7 +38,8 @@ trait Syntaxes {
     def -(temporalAmount: TemporalAmount): LocalTime = localTime.minus(temporalAmount)
   }
 
-  implicit class OffsetDateTimeSyntax(offsetDateTime: OffsetDateTime) extends OrderingOps[OffsetDateTime](offsetDateTime) {
+  implicit class OffsetDateTimeSyntax(offsetDateTime: OffsetDateTime)
+      extends OrderingOps[OffsetDateTime](offsetDateTime) {
     def +(temporalAmount: TemporalAmount): OffsetDateTime = offsetDateTime.plus(temporalAmount)
     def -(temporalAmount: TemporalAmount): OffsetDateTime = offsetDateTime.minus(temporalAmount)
   }
@@ -51,8 +52,8 @@ trait Syntaxes {
   implicit class PeriodSyntax(period: Period) {
     def +(temporalAmount: TemporalAmount): Period = period.plus(temporalAmount)
     def -(temporalAmount: TemporalAmount): Period = period.minus(temporalAmount)
-    def *(scalar: Int): Period = period.multipliedBy(scalar)
-    def unary_- : Period = period.negated()
+    def *(scalar: Int): Period                    = period.multipliedBy(scalar)
+    def unary_- : Period                          = period.negated()
   }
 
   implicit class YearSyntax(year: Year) extends OrderingOps[Year](year) {
@@ -76,12 +77,12 @@ object Syntaxes {
   // This class is the equivalent of Ordering.Ops in 2.12 and Ordering.OrderingOps in 2.13. The
   // rename means that in order to cross compile we have to define one ourselves.
   abstract class OrderingOps[T](lhs: T)(implicit ordering: Ordering[T]) {
-    def <(rhs: T): Boolean = ordering.lt(lhs, rhs)
-    def <=(rhs: T): Boolean = ordering.lteq(lhs, rhs)
-    def >(rhs: T): Boolean = ordering.gt(lhs, rhs)
-    def >=(rhs: T): Boolean = ordering.gteq(lhs, rhs)
+    def <(rhs: T): Boolean     = ordering.lt(lhs, rhs)
+    def <=(rhs: T): Boolean    = ordering.lteq(lhs, rhs)
+    def >(rhs: T): Boolean     = ordering.gt(lhs, rhs)
+    def >=(rhs: T): Boolean    = ordering.gteq(lhs, rhs)
     def equiv(rhs: T): Boolean = ordering.equiv(lhs, rhs)
-    def max(rhs: T): T = ordering.max(lhs, rhs)
-    def min(rhs: T): T = ordering.min(lhs, rhs)
+    def max(rhs: T): T         = ordering.max(lhs, rhs)
+    def min(rhs: T): T         = ordering.min(lhs, rhs)
   }
 }

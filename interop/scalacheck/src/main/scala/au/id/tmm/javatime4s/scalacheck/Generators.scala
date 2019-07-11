@@ -103,7 +103,7 @@ trait Generators {
 
 }
 
-object Generators {
+object Generators extends Generators {
   private val minInstantSeconds = -31557014167219200L
   private val maxInstantSeconds = 31556889864403199L
 

@@ -23,7 +23,7 @@ class DurationSyntaxSpec extends FlatSpec {
   }
 
   it can "be negated" in {
-    assert(- Duration.ofDays(3) === Duration.ofDays(-3))
+    assert(-Duration.ofDays(3) === Duration.ofDays(-3))
   }
 
   it can "be compared using <" in {

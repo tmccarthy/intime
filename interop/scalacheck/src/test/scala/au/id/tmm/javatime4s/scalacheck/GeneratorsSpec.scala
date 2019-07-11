@@ -7,7 +7,7 @@ class GeneratorsSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
   implicit val config: PropertyCheckConfiguration = PropertyCheckConfiguration(
     minSuccessful = 5000,
-    workers = 2,
+    workers = 2
   )
 
   "generated durations" should "be valid" in forAll(genDuration)(_ => succeed)
