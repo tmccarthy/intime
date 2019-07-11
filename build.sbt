@@ -1,5 +1,6 @@
-import org.eclipse.jgit.api.Git
+import DependencySettings._
 import MakeProjects._
+import org.eclipse.jgit.api.Git
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 
@@ -29,6 +30,7 @@ lazy val root = project
   .aggregate(
     core,
     interopCats,
+    interopScalaCheck,
   )
 
 lazy val core = project
@@ -38,6 +40,15 @@ lazy val core = project
 lazy val interopCats = project
   .in(file("interop/cats"))
   .settings(subProjectSettings("cats-interop"))
-  .settings(DependencySettings.catsDependency)
+  .settings(
+    catsDependency,
+    catsTestKitDependency,
+  )
   .dependsOn(core)
 
+lazy val interopScalaCheck = project
+  .in(file("interop/scalacheck"))
+  .settings(subProjectSettings("scalacheck-interop"))
+  .settings(
+    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0",
+  )
