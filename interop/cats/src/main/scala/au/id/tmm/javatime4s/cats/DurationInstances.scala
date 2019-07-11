@@ -6,9 +6,9 @@ import cats.kernel.CommutativeGroup
 import cats.{Hash, Order, Show}
 
 trait DurationInstances {
-  implicit val catsKernelStdOrderForDuration: Order[Duration] with Hash[Duration] = new DurationOrder
-  implicit val catsKernelStdGroupForDuration: CommutativeGroup[Duration]          = new DurationGroup
-  implicit val catsKernelStdShowForDuration: Show[Duration]                       = Show.fromToString
+  implicit val catsKernelStdOrderForJavaTimeDuration: Order[Duration] with Hash[Duration] = new DurationOrder
+  implicit val catsKernelStdGroupForJavaTimeDuration: CommutativeGroup[Duration]          = new DurationGroup
+  implicit val catsKernelStdShowForJavaTimeDuration: Show[Duration]                       = Show.fromToString
 }
 
 class DurationOrder extends Order[Duration] with Hash[Duration] {

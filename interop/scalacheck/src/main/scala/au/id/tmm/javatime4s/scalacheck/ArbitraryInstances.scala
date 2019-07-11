@@ -14,7 +14,7 @@ trait ArbitraryInstances {
 
   private val genDuration: Gen[Duration] =
     for {
-      seconds        <- arbitrary[Long]
+      seconds        <- arbitrary[Int] // This should probably be a Long, but it causes overflows
       nanoAdjustment <- genField(NANO_OF_SECOND)
     } yield Duration.ofSeconds(seconds, nanoAdjustment)
 

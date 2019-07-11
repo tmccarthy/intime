@@ -44,7 +44,7 @@ lazy val interopCats = project
     catsDependency,
     catsTestKitDependency,
   )
-  .dependsOn(core)
+  .dependsOn(core, interopScalaCheck % "compile->test")
 
 lazy val interopScalaCheck = project
   .in(file("interop/scalacheck"))
