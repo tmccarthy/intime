@@ -29,26 +29,26 @@ lazy val root = project
   .settings(console := (console in Compile in core).value)
   .aggregate(
     core,
-    interopCats,
-    interopScalaCheck,
+    cats,
+    scalaCheck,
   )
 
 lazy val core = project
   .in(file("core"))
   .settings(subProjectSettings("core"))
 
-lazy val interopCats = project
-  .in(file("interop/cats"))
-  .settings(subProjectSettings("cats-interop"))
+lazy val cats = project
+  .in(file("cats"))
+  .settings(subProjectSettings("cats"))
   .settings(
     catsDependency,
     catsTestKitDependency,
   )
-  .dependsOn(core, interopScalaCheck % "compile->test")
+  .dependsOn(scalaCheck % "compile->test")
 
-lazy val interopScalaCheck = project
-  .in(file("interop/scalacheck"))
-  .settings(subProjectSettings("scalacheck-interop"))
+lazy val scalaCheck = project
+  .in(file("scalacheck"))
+  .settings(subProjectSettings("scalacheck"))
   .settings(
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0",
   )
