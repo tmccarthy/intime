@@ -99,9 +99,11 @@ trait ArbitraryInstances {
 
   private val genPeriod: Gen[Period] =
     for {
-      years  <- arbitrary[Int]
-      months <- arbitrary[Int]
-      days   <- arbitrary[Int]
+      // These should be arbitrary Int values, but if you do that all your tests will overflow,
+      // so we use short instead
+      years  <- arbitrary[Short]
+      months <- arbitrary[Short]
+      days   <- arbitrary[Short]
     } yield Period.of(years, months, days)
 
   implicit val arbitraryDuration: Arbitrary[Duration]             = Arbitrary(genDuration)

@@ -5,11 +5,6 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class ArbitraryInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
-  implicit val config: PropertyCheckConfiguration = PropertyCheckConfiguration(
-    minSuccessful = 5000,
-    workers = 2
-  )
-
   "arbitrary durations"       should "be valid" in forAll(arbitraryDuration)(_ => succeed)
   "arbitrary instants"        should "be valid" in forAll(arbitraryInstant)(_ => succeed)
   "arbitrary years"           should "be valid" in forAll(arbitraryYear)(_ => succeed)
