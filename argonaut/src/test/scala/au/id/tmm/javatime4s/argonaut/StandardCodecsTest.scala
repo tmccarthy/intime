@@ -60,6 +60,7 @@ class StandardCodecsTest extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
   behavior of "The codec for ZonedDateTime"
 
+  // This test fails in Java 8 due to a bug in java.time.ZonedDateTime
   it should "encode and decode a zoned date time in the GMT0 timezone" in {
     val zonedDateTime = ZonedDateTime.of(
       LocalDate.of(508590951, 6, 8),
@@ -78,12 +79,14 @@ class StandardCodecsTest extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
   behavior of "The codec for Duration"
 
+  // This test fails in Java 8 due to a bug in java.time.Duration
   it should "encode and decode a negative duration of less than one second" in {
     val period = Duration.ofSeconds(0, -174786001)
 
     assertEncodeDecodeIsIdentity(period)
   }
 
+  // This test fails in Java 8 due to a bug in java.time.Duration
   it should "encode and decode a negative duration of more than one second" in {
     val period = Duration.ofSeconds(-1, -174786001)
 
