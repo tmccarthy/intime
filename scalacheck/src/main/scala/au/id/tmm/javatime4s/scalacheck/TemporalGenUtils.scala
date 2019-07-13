@@ -4,7 +4,7 @@ import java.time.temporal.{TemporalAccessor, TemporalField, ValueRange => Tempor
 
 import org.scalacheck.Gen
 
-object TemporalGenerating {
+object TemporalGenUtils {
 
   def genField(temporalField: TemporalField): Gen[Long] =
     genFrom(temporalField.range())

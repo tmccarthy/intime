@@ -3,7 +3,7 @@ package au.id.tmm.javatime4s.scalacheck
 import java.time._
 import java.time.temporal.ChronoField._
 
-import au.id.tmm.javatime4s.scalacheck.TemporalGenerating._
+import au.id.tmm.javatime4s.scalacheck.TemporalGenUtils._
 import org.scalacheck.Arbitrary._
 import org.scalacheck.{Arbitrary, Gen}
 
