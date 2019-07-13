@@ -10,13 +10,13 @@ private[argonaut] object DateTimeCodecUtils {
   ): CodecJson[A] =
     CodecJson(
       a => encode(a).asJson,
-      c => c.as[Intermediate]
-        .flatMap { s =>
+      c =>
+        c.as[Intermediate].flatMap { s =>
           try {
             DecodeResult.ok(decode(s))
           } catch {
             case e: Exception => DecodeResult.fail(e.getMessage, c.history)
           }
-        }
+        },
     )
 }

@@ -94,7 +94,7 @@ trait ArbitraryInstances {
     DayOfWeek.THURSDAY,
     DayOfWeek.FRIDAY,
     DayOfWeek.SATURDAY,
-    DayOfWeek.SUNDAY
+    DayOfWeek.SUNDAY,
   )
 
   private val genPeriod: Gen[Period] =
