@@ -8,47 +8,109 @@ import org.scalacheck.Arbitrary
 import org.scalatest.FlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-import scala.reflect.ClassTag
-
 class StandardCodecsTest extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
   implicit val config: PropertyCheckConfiguration = PropertyCheckConfiguration(
-    minSuccessful = 200000,
+    minSuccessful = 50000,
   )
 
+  behavior of "The codec for Instant"
+
   testsForCodec[Instant]()
+
+  behavior of "The codec for Year"
+
   testsForCodec[Year]()
+
+  behavior of "The codec for Month"
+
   testsForCodec[Month]()
+
+  behavior of "The codec for YearMonth"
+
   testsForCodec[YearMonth]()
+
+  behavior of "The codec for LocalDate"
+
   testsForCodec[LocalDate]()
+
+  behavior of "The codec for LocalTime"
+
   testsForCodec[LocalTime]()
+
+  behavior of "The codec for LocalDateTime"
+
   testsForCodec[LocalDateTime]()
+
+  behavior of "The codec for MonthDay"
+
   testsForCodec[MonthDay]()
+
+  behavior of "The codec for ZoneOffset"
+
   testsForCodec[ZoneOffset]()
+
+  behavior of "The codec for OffsetDateTime"
+
   testsForCodec[OffsetDateTime]()
+
+  behavior of "The codec for OffsetTime"
+
   testsForCodec[OffsetTime]()
-  testsForCodec[ZonedDateTime]()
-  testsForCodec[DayOfWeek]()
-  testsForCodec[Duration]()
-  testsForCodec[ZoneId]()
-  testsForCodec[Period]()
 
-  def testsForCodec[A : EncodeJson : DecodeJson : Arbitrary : ClassTag](): Unit = {
+  behavior of "The codec for ZonedDateTime"
 
-    val className = implicitly[ClassTag[A]].runtimeClass.getSimpleName
+  it should "encode and decode a zoned date time in the GMT0 timezone" in {
+    val zonedDateTime = ZonedDateTime.of(
+      LocalDate.of(508590951, 6, 8),
+      LocalTime.of(23, 43, 29, 887768879),
+      ZoneId.of("GMT0"),
+    )
 
-    behavior of s"The codec for $className"
-
-    it should "invert the encoder and decoder" in forAll { a: A =>
-      val encoded = implicitly[EncodeJson[A]].encode(a)
-
-      val decoded = implicitly[DecodeJson[A]].decodeJson(encoded)
-
-      assert(decoded === DecodeResult.ok(a))
-    }
+    assertEncodeDecodeIsIdentity(zonedDateTime)
   }
 
-  // TODO add dedicated test for ZonedDateTime +508590951-06-08T23:53:29.887768879Z[GMT0]
-  // TODO add dedicated test for PT-0.174786001S / PT0.174786001S
+  testsForCodec[ZonedDateTime]()
+
+  behavior of "The codec for DayOfWeek"
+
+  testsForCodec[DayOfWeek]()
+
+  behavior of "The codec for Duration"
+
+  it should "encode and decode a negative duration of less than one second" in {
+    val period = Duration.ofSeconds(0, -174786001)
+
+    assertEncodeDecodeIsIdentity(period)
+  }
+
+  it should "encode and decode a negative duration of more than one second" in {
+    val period = Duration.ofSeconds(-1, -174786001)
+
+    assertEncodeDecodeIsIdentity(period)
+  }
+
+  testsForCodec[Duration]()
+
+  behavior of "The codec for ZoneId"
+
+  testsForCodec[ZoneId]()
+
+  behavior of "The codec for Period"
+
+  testsForCodec[Period]()
+
+  private def testsForCodec[A : EncodeJson : DecodeJson : Arbitrary](): Unit =
+    it should "invert the encoder and decoder" in forAll { a: A =>
+      assertEncodeDecodeIsIdentity(a)
+    }
+
+  def assertEncodeDecodeIsIdentity[A : EncodeJson : DecodeJson](a: A): Unit = {
+    val encoded = implicitly[EncodeJson[A]].encode(a)
+
+    val decoded = implicitly[DecodeJson[A]].decodeJson(encoded)
+
+    assert(decoded === DecodeResult.ok(a))
+  }
 
 }
