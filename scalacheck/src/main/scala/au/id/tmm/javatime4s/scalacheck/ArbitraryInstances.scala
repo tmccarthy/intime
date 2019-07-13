@@ -63,11 +63,18 @@ trait ArbitraryInstances {
   private val genZoneOffset: Gen[ZoneOffset] =
     genIntField(OFFSET_SECONDS).map(ZoneOffset.ofTotalSeconds)
 
-  // This weird way of converting from the java.util.Set to a Scala iterable is because there is
-  // no way of using the Scala converters across both 2.12 and 2.13 without hitting either a
-  // compiler error or a deprecation warning in one or the other version.
-  private val genZoneId: Gen[ZoneId] =
-    Gen.oneOf(ZoneId.getAvailableZoneIds.stream().toArray(new Array[String](_)).toIndexedSeq).map(ZoneId.of)
+  private val genZoneId: Gen[ZoneId] = {
+    val genNamedZoneId = Gen.oneOf {
+      // This weird way of converting from the java.util.Set to a Scala iterable is because there is
+      // no way of using the Scala converters across both 2.12 and 2.13 without hitting either a
+      // compiler error or a deprecation warning in one or the other version.
+      ZoneId.getAvailableZoneIds.stream().toArray(new Array[String](_)).toIndexedSeq
+    }.map(ZoneId.of)
+
+    val genOffsetZoneId = genZoneOffset.map(_.normalized())
+
+    Gen.oneOf(genNamedZoneId, genOffsetZoneId)
+  }
 
   private val genOffsetDateTime: Gen[OffsetDateTime] =
     for {

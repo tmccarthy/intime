@@ -104,7 +104,7 @@ class StandardCodecsTest extends FlatSpec with ScalaCheckDrivenPropertyChecks {
   testsForCodec[Period]()
 
   private def testsForCodec[A : EncodeJson : DecodeJson : Arbitrary](): Unit =
-    it should "invert the encoder and decoder" in forAll { a: A =>
+    it should "form an identity when encoding and then decoding" in forAll { a: A =>
       assertEncodeDecodeIsIdentity(a)
     }
 
