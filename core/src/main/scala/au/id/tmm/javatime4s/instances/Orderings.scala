@@ -2,6 +2,10 @@ package au.id.tmm.javatime4s.instances
 
 import java.time._
 
+/**
+  * Provides instances of `Ordering` for all classes in the `java.time` package based on their
+  * implementations of `Comparable`.
+  */
 trait Orderings {
   implicit val durationOrdering: Ordering[Duration]             = _ compareTo _
   implicit val instantOrdering: Ordering[Instant]               = _ compareTo _

@@ -8,6 +8,21 @@ import au.id.tmm.javatime4s.syntax.Syntaxes.OrderingOps
 
 import scala.math.Ordering
 
+/**
+  * Defines operator overloads for classes in the `java.time` package. These are always simple
+  * aliases:
+  * <ul>
+  *   <li>`plus` is aliased to `+`</li>
+  *   <li>`minus` is aliased to `-`</li>
+  *   <li>`dividedBy` is aliased to `/`</li>
+  *   <li>`multipliedBy` is aliased to `*`</li>
+  *   <li>`negated` is aliased to `unary_-`</li>
+  * </ul>
+  *
+  * Those classes for which there is an ordering defined in `au.id.tmm.javatime4s.instances.Orderings`
+  * also have the comparison operators `<`, `<=`, `>`, `>=`, `equiv`, `min` and `max` defined via
+  * `OrderingOps`.
+  */
 trait Syntaxes {
 
   implicit class DurationSyntax(duration: Duration) extends OrderingOps[Duration](duration) {
