@@ -8,146 +8,141 @@ import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 
 trait ChooseInstances {
-  implicit val chooseDuration: Choose[Duration] = new ChronoFieldRangeChoose[Duration](
-    fields = List(
-      INSTANT_SECONDS,
-      NANO_OF_SECOND,
-    ),
-    { case second :: nano :: Nil => Duration.ofSeconds(second, nano) }
-  )
 
-  implicit val chooseInstant: Choose[Instant] = new ChronoFieldRangeChoose[Instant](
-      List(
-        INSTANT_SECONDS,
-        NANO_OF_SECOND,
-      ),
-      { case second :: nano :: Nil => Instant.ofEpochSecond(second, nano) },
+  implicit val chooseDuration: Choose[Duration] =
+    combineChooses[Long, Long, Duration](
+      _.getSeconds,
+      _.getNano,
+      Duration.ofSeconds,
+      _ => 0L,
+      _ => NANO_OF_SECOND.range().getMaximum,
     )
 
-  implicit val chooseYear: Choose[Year]                     = (min, max) =>
-    Gen.choose[Long](min.getValue, max.getValue).map(l => Year.of(l.toInt))
+  implicit val chooseInstant: Choose[Instant] =
+    makeChronoFieldRangeChoose(INSTANT_SECONDS, NANO_OF_SECOND) {
+      case second :: nano :: Nil => Instant.ofEpochSecond(second, nano)
+    }
 
-  implicit val chooseMonth: Choose[Month]                   = (min, max) =>
-    Gen.choose[Long](min.getValue, max.getValue).map(l => Month.of(l.toInt))
+  implicit val chooseYear: Choose[Year] =
+    Choose.xmap[Int, Year](Year.of, _.getValue)
 
-  implicit val chooseYearMonth: Choose[YearMonth]           = (min, max) =>
+  implicit val chooseMonth: Choose[Month] =
+    Choose.xmap[Int, Month](Month.of, _.getValue)
+
+  implicit val chooseYearMonth: Choose[YearMonth] =
+    makeChronoFieldRangeChoose(YEAR, MONTH_OF_YEAR) {
+      case year :: monthOfYear :: Nil => YearMonth.of(year.toInt, monthOfYear.toInt)
+    }
+
+  implicit val chooseMonthDay: Choose[MonthDay] =
+    combineChooses[Int, Int, MonthDay](
+      _.getMonthValue,
+      _.getDayOfMonth,
+      MonthDay.of,
+      _ => 0,
+      month => DAY_OF_MONTH.rangeRefinedBy(Month.of(month)).getMaximum.toInt,
+    )
+
+  implicit val chooseLocalDate: Choose[LocalDate] =
+    combineChooses[YearMonth, Int, LocalDate](
+      YearMonth.from,
+      _.getDayOfMonth,
+      (yearMonth, day) => LocalDate.of(yearMonth.getYear, yearMonth.getMonthValue, day),
+      _ => 1,
+      yearMonth => DAY_OF_MONTH.rangeRefinedBy(yearMonth.atDay(1)).getMaximum.toInt,
+    )
+
+  implicit val chooseLocalTime: Choose[LocalTime] =
+    makeChronoFieldRangeChoose(HOUR_OF_DAY, MINUTE_OF_HOUR, SECOND_OF_MINUTE, NANO_OF_SECOND) {
+      case hour :: minute :: second :: nano :: Nil => LocalTime.of(hour.toInt, minute.toInt, second.toInt, nano.toInt)
+    }
+
+  implicit val chooseLocalDateTime: Choose[LocalDateTime] =
+    combineChooses[LocalDate, LocalTime, LocalDateTime](
+      _.toLocalDate,
+      _.toLocalTime,
+      LocalDateTime.of,
+      _ => LocalTime.MIN,
+      _ => LocalTime.MAX,
+    )
+
+  implicit val chooseZoneOffset: Choose[ZoneOffset] =
+    Choose.xmap[Int, ZoneOffset](ZoneOffset.ofTotalSeconds, _.getTotalSeconds)
+
+  implicit val chooseDayOfWeek: Choose[DayOfWeek] =
+    Choose.xmap(DayOfWeek.of, _.getValue)
+
+  // TODO figure out how to do this
+  implicit val chooseZoneId: Choose[ZoneId] = (min, max) => ???
+
+  // TODO write a test for this
+  implicit val choosePeriod: Choose[Period] = (min, max) => ???
+
+  private def combineChooses[T1 : Choose : Ordering, T2 : Choose, O](
+    extractT1: O => T1,
+    extractT2: O => T2,
+    combine: (T1, T2) => O,
+    t2Floor: T1 => T2,
+    t2Ceil: T1 => T2,
+  ): Choose[O] = (minO, maxO) => {
+    val minT1 = extractT1(minO)
+    val minT2 = extractT1(maxO)
+
     for {
-      year <- Gen.choose[Int](min.getYear, max.getYear)
+      t1 <- implicitly[Choose[T1]].choose(minT1, minT2)
 
-      month <- Gen.choose(
-        min = if (year <= min.getYear) min.getMonthValue else MONTH_OF_YEAR.range().getMinimum,
-        max = if (year >= max.getYear) max.getMonthValue else MONTH_OF_YEAR.range().getMaximum,
+      t2 <- implicitly[Choose[T2]].choose(
+        min = if (implicitly[Ordering[T1]].lteq(t1, minT1)) extractT2(minO) else t2Floor(t1),
+        max = if (implicitly[Ordering[T1]].gteq(t1, minT2)) extractT2(maxO) else t2Ceil(t1),
       )
-    } yield YearMonth.of(year.toInt, month.toInt)
+    } yield combine(t1, t2)
+  }
 
-  implicit val chooseLocalDate: Choose[LocalDate]           = (min, max) => ???
+  private def makeChronoFieldRangeChoose[A <: TemporalAccessor](
+    fields: ChronoField*,
+  )(makeA: PartialFunction[List[Long], A]) =
+    new Choose[A] {
+      override def choose(min: A, max: A): Gen[A] = generateFieldValues(min, max).map(makeA)
 
-  implicit val chooseLocalTime: Choose[LocalTime] = new ChronoFieldRangeChoose[LocalTime](
-    fields = List(
-      HOUR_OF_DAY,
-      MINUTE_OF_HOUR,
-      SECOND_OF_MINUTE,
-      NANO_OF_SECOND,
-    ),
-    { case hour :: minute :: second :: nano :: Nil => LocalTime.of(hour.toInt, minute.toInt, second.toInt, nano.toInt) },
-  )
+      private def generateFieldValues(
+        min: A,
+        max: A,
+        generatorForPreviousFields: Gen[List[Long]] = Gen.const(Nil),
+        fieldsAlreadyGenerated: List[ChronoField] = Nil,
+        fieldsRemaining: List[ChronoField] = fields.toList,
+      ): Gen[List[Long]] = fieldsRemaining match {
+        case Nil => generatorForPreviousFields
+        case thisField :: fieldsRemaining =>
+          generatorForPreviousFields.flatMap { valuesForPreviousFields =>
+            val valuesWithHandledFields: List[(Long, ChronoField)] =
+              valuesForPreviousFields zip fieldsAlreadyGenerated
 
-  implicit val chooseLocalDateTime: Choose[LocalDateTime]   = (min, max) => ???
-  implicit val chooseMonthDay: Choose[MonthDay]             = (min, max) => ???
-  implicit val chooseZoneOffset: Choose[ZoneOffset]         = (min, max) => ???
-  implicit val chooseZoneId: Choose[ZoneId]                 = (min, max) => ???
-  implicit val chooseOffsetDateTime: Choose[OffsetDateTime] = (min, max) => ???
-  implicit val chooseOffsetTime: Choose[OffsetTime]         = (min, max) => ???
-  implicit val chooseZonedDateTime: Choose[ZonedDateTime]   = (min, max) => ???
-  implicit val chooseDayOfWeek: Choose[DayOfWeek]           = (min, max) => ???
-  implicit val choosePeriod: Choose[Period]                 = (min, max) => ???
-
-  private def genBlah[A <: TemporalAccessor](
-    min: A,
-    max: A,
-    fields: List[ChronoField],
-    makeA: PartialFunction[List[Long], A],
-  ): Gen[A] = {
-
-    def recThing(
-      genSoFar: Gen[List[Long]],
-      handledFields: List[ChronoField],
-      remainingFields: List[ChronoField],
-    ): Gen[List[Long]] =
-
-      remainingFields match {
-        case thisField :: remainingFields => {
-          genSoFar.flatMap { generatedValues =>
-
-            val x = generatedValues zip handledFields
-            val atMinBoundary = x.forall { case (generatedValue, field) =>
-              generatedValue <= field.getFrom(min)
+            val isAtMinBoundary = valuesWithHandledFields.forall {
+              case (generatedValue, field) =>
+                generatedValue <= field.getFrom(min)
             }
 
-            val atMaxBoundary = x.forall { case (generatedValue, field) =>
-              generatedValue >= field.getFrom(max)
+            val isAtMaxBoundary = valuesWithHandledFields.forall {
+              case (generatedValue, field) =>
+                generatedValue >= field.getFrom(max)
             }
 
             val generatorForThisFieldValue = Gen.choose[Long](
-              min = if (atMinBoundary) thisField.getFrom(min) else thisField.range().getMinimum,
-              max = if (atMaxBoundary) thisField.getFrom(max) else thisField.range().getMaximum,
+              min = if (isAtMinBoundary) thisField.getFrom(min) else thisField.range().getMinimum,
+              max = if (isAtMaxBoundary) thisField.getFrom(max) else thisField.range().getMaximum,
             )
 
-            recThing(generatorForThisFieldValue.map(generatedValues :+ _), handledFields :+ thisField, remainingFields)
+            generateFieldValues(
+              min,
+              max,
+              generatorForThisFieldValue.map(valuesForPreviousFields :+ _),
+              fieldsAlreadyGenerated :+ thisField,
+              fieldsRemaining,
+            )
           }
-        }
-        case Nil => genSoFar
+
       }
-
-
-    recThing(Gen.const(Nil), Nil, fields)
-      .map(makeA)
-  }
-
-  private final class ChronoFieldRangeChoose[A <: TemporalAccessor](
-    fields: List[ChronoField],
-    makeA: PartialFunction[List[Long], A],
-  ) extends Choose[A] {
-    override def choose(min: A, max: A): Gen[A] = makeA(generateFieldValues(min, max))
-
-    private def generateFieldValues(
-      min: A,
-      max: A,
-      generatorForPreviousFields: Gen[List[Long]] = Gen.const(Nil),
-      fieldsAlreadyGenerated: List[ChronoField] = Nil,
-      fieldsRemaining: List[ChronoField] = this.fields,
-    ): Gen[List[Long]] = fieldsRemaining match {
-      case Nil => generatorForPreviousFields
-      case thisField :: fieldsRemaining =>
-        generatorForPreviousFields.flatMap { valuesForPreviousFields =>
-
-          val valuesWithHandledFields: List[(Long, ChronoField)] =
-            valuesForPreviousFields zip fieldsAlreadyGenerated
-
-          val isAtMinBoundary = valuesWithHandledFields.forall { case (generatedValue, field) =>
-            generatedValue <= field.getFrom(min)
-          }
-
-          val isAtMaxBoundary = valuesWithHandledFields.forall { case (generatedValue, field) =>
-            generatedValue >= field.getFrom(max)
-          }
-
-          val generatorForThisFieldValue = Gen.choose[Long](
-            min = if (isAtMinBoundary) thisField.getFrom(min) else thisField.range().getMinimum,
-            max = if (isAtMaxBoundary) thisField.getFrom(max) else thisField.range().getMaximum,
-          )
-
-          generateFieldValues(
-            min,
-            max,
-            generatorForThisFieldValue.map(valuesForPreviousFields :+ _),
-            fieldsAlreadyGenerated :+ thisField,
-            fieldsRemaining,
-          )
-        }
-
     }
-  }
 
 }
 

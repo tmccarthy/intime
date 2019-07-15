@@ -1,54 +1,47 @@
 package au.id.tmm.javatime4s.scalacheck
 
-import java.time.{Duration, Instant}
+import java.time._
 
-import au.id.tmm.javatime4s.syntax._
-import org.scalacheck.Gen
+import au.id.tmm.javatime4s.instances._
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen.Choose
 import org.scalatest.FlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+
+import scala.reflect.ClassTag
 
 class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
   import ChooseInstances._
 
-  "durations generated within a range" should "fall within the specified range" in {
-    val minMaxGenerator: Gen[(Duration, Duration)] = for {
-      minSeconds <- Gen.choose[Long](-10, 10)
-      minNanos   <- Gen.choose[Long](0, 999999999)
+  testChooseRange[Duration](chooseDuration)
+  testChooseRange[Instant](chooseInstant)
+  testChooseRange[Year](chooseYear)
+  testChooseRange[Month](chooseMonth)
+  testChooseRange[YearMonth](chooseYearMonth)
+  testChooseRange[MonthDay](chooseMonthDay)
+  testChooseRange[LocalDate](chooseLocalDate)
+  testChooseRange[LocalTime](chooseLocalTime)
+  testChooseRange[LocalDateTime](chooseLocalDateTime)
+  testChooseRange[ZoneOffset](chooseZoneOffset)
+  testChooseRange[DayOfWeek](chooseDayOfWeek)
 
-      maxSeconds <- Gen.choose[Long](minSeconds, 10)
-      maxNanos   <- Gen.choose[Long](if (maxSeconds == minSeconds) minNanos else 0, 999999999)
+  // TODO test for ZoneId
+  // TODO test for Period
 
-      minDuration = Duration.ofSeconds(minSeconds, minNanos)
-      maxDuration = Duration.ofSeconds(maxSeconds, maxNanos)
-    } yield (minDuration, maxDuration)
+  def testChooseRange[A : Arbitrary : Ordering : ClassTag](choose: Choose[A]): Unit = {
+    val className = implicitly[ClassTag[A]].runtimeClass.getSimpleName
 
-    forAll(minMaxGenerator) { case (minDuration, maxDuration) =>
-      val generatorUnderTest: Gen[Duration] = Gen.choose(minDuration, maxDuration)
+    s"the choose for $className" should "generate instances within the specified range" in {
+      forAll { pair: (A, A) =>
+        val min = Ordering[A].min(pair._1, pair._2)
+        val max = Ordering[A].max(pair._1, pair._2)
 
-      forAll(generatorUnderTest) { d =>
-        assert(d >= minDuration && d <= maxDuration)
-      }
-    }
-  }
+        val generator = choose.choose(min, max)
 
-  "instants generated within a range" should "fall within the specified range" in {
-    val minMaxGenerator: Gen[(Instant, Instant)] = for {
-      minSeconds <- Gen.choose[Long](-10, 10)
-      minNanos   <- Gen.choose[Long](0, 999999999)
-
-      maxSeconds <- Gen.choose[Long](minSeconds, 10)
-      maxNanos   <- Gen.choose[Long](if (maxSeconds == minSeconds) minNanos else 0, 999999999)
-
-      minInstant = Instant.ofEpochSecond(minSeconds, minNanos)
-      maxInstant = Instant.ofEpochSecond(maxSeconds, maxNanos)
-    } yield (minInstant, maxInstant)
-
-    forAll(minMaxGenerator) { case (minInstant, maxInstant) =>
-      val generatorUnderTest: Gen[Instant] = Gen.choose(minInstant, maxInstant)
-
-      forAll(generatorUnderTest) { d =>
-        assert(d >= minInstant && d <= maxInstant)
+        forAll(generator) { a: A =>
+          assert(Ordering[A].lteq(min, a) && Ordering[A].lteq(a, max))
+        }
       }
     }
   }

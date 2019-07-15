@@ -53,6 +53,7 @@ lazy val scalaCheck = project
   .settings(
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0",
   )
+  .dependsOn(core % "compile->test")
 
 lazy val argonaut = project
   .in(file("argonaut"))
