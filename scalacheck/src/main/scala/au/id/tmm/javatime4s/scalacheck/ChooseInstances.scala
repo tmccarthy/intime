@@ -4,6 +4,7 @@ import java.time._
 import java.time.temporal.ChronoField._
 import java.time.temporal.{ChronoField, TemporalAccessor}
 
+import au.id.tmm.javatime4s.orderings._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 

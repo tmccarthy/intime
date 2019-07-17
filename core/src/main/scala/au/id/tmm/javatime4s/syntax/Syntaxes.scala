@@ -3,8 +3,8 @@ package au.id.tmm.javatime4s.syntax
 import java.time._
 import java.time.temporal.TemporalAmount
 
-import au.id.tmm.javatime4s.instances._
-import au.id.tmm.javatime4s.syntax.Syntaxes.OrderingOps
+import au.id.tmm.javatime4s.orderings._
+import au.id.tmm.javatime4s.syntax.Syntaxes.{OrderingOps, PartialOrderingOps}
 
 import scala.math.Ordering
 
@@ -64,7 +64,7 @@ trait Syntaxes {
     def -(temporalAmount: TemporalAmount): OffsetTime = offsetTime.minus(temporalAmount)
   }
 
-  implicit class PeriodSyntax(period: Period) {
+  implicit class PeriodSyntax(period: Period) extends PartialOrderingOps[Period](period) {
     def +(temporalAmount: TemporalAmount): Period = period.plus(temporalAmount)
     def -(temporalAmount: TemporalAmount): Period = period.minus(temporalAmount)
     def *(scalar: Int): Period                    = period.multipliedBy(scalar)
@@ -99,5 +99,15 @@ object Syntaxes {
     def equiv(rhs: T): Boolean = ordering.equiv(lhs, rhs)
     def max(rhs: T): T         = ordering.max(lhs, rhs)
     def min(rhs: T): T         = ordering.min(lhs, rhs)
+  }
+
+  // This class is the equivalent of Ordering.Ops in 2.12 and Ordering.OrderingOps in 2.13. The
+  // rename means that in order to cross compile we have to define one ourselves.
+  abstract class PartialOrderingOps[T](lhs: T)(implicit partialOrdering: PartialOrdering[T]) {
+    def <(rhs: T): Boolean     = partialOrdering.lt(lhs, rhs)
+    def <=(rhs: T): Boolean    = partialOrdering.lteq(lhs, rhs)
+    def >(rhs: T): Boolean     = partialOrdering.gt(lhs, rhs)
+    def >=(rhs: T): Boolean    = partialOrdering.gteq(lhs, rhs)
+    def equiv(rhs: T): Boolean = partialOrdering.equiv(lhs, rhs)
   }
 }

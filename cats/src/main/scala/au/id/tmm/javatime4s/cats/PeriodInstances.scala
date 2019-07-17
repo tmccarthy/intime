@@ -2,18 +2,21 @@ package au.id.tmm.javatime4s.cats
 
 import java.time.Period
 
-import cats.kernel.CommutativeGroup
+import au.id.tmm.javatime4s.orderings.PeriodPartialOrdering
+import cats.kernel.{CommutativeGroup, PartialOrder}
 import cats.{Hash, Show}
 
 trait PeriodInstances {
-  implicit val catsKernelStdHashForPeriod: Hash[Period]              = new PeriodHash
-  implicit val catsKernelStdGroupForPeriod: CommutativeGroup[Period] = new PeriodGroup
-  implicit val catsKernelStdShowForPeriod: Show[Period]              = Show.fromToString
+  implicit val catsKernelStdHashForPeriod: Hash[Period] with PartialOrder[Period] = new PeriodHash
+  implicit val catsKernelStdGroupForPeriod: CommutativeGroup[Period]              = new PeriodGroup
+  implicit val catsKernelStdShowForPeriod: Show[Period]                           = Show.fromToString
 }
 
-class PeriodHash extends Hash[Period] {
+class PeriodHash extends Hash[Period] with PartialOrder[Period] {
   override def hash(x: Period): Int               = x.hashCode()
   override def eqv(x: Period, y: Period): Boolean = x == y
+  override def partialCompare(x: Period, y: Period): Double =
+    PeriodPartialOrdering.tryCompare(x, y).getOrElse(Double.NaN)
 }
 
 class PeriodGroup extends CommutativeGroup[Period] {

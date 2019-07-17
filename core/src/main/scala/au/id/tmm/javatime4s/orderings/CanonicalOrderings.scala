@@ -1,4 +1,4 @@
-package au.id.tmm.javatime4s.instances
+package au.id.tmm.javatime4s.orderings
 
 import java.time._
 
@@ -6,7 +6,7 @@ import java.time._
   * Provides instances of `Ordering` for all classes in the `java.time` package based on their
   * implementations of `Comparable`.
   */
-trait Orderings {
+trait CanonicalOrderings {
   implicit val durationOrdering: Ordering[Duration]             = _ compareTo _
   implicit val instantOrdering: Ordering[Instant]               = _ compareTo _
   implicit val localDateOrdering: Ordering[LocalDate]           = _ compareTo _
@@ -21,4 +21,6 @@ trait Orderings {
   implicit val zoneOffsetOrdering: Ordering[ZoneOffset]         = _ compareTo _
   implicit val dayOfWeekOrdering: Ordering[DayOfWeek]           = _ compareTo _
   implicit val monthOrdering: Ordering[Month]                   = _ compareTo _
+
+  implicit val periodPartialOrdering: PartialOrdering[Period] = PeriodPartialOrdering
 }
