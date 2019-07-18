@@ -25,6 +25,9 @@ class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
   testChooseRange[LocalDateTime](chooseLocalDateTime)
   testChooseRange[ZoneOffset](chooseZoneOffset)
   testChooseRange[DayOfWeek](chooseDayOfWeek)
+  testChooseRange[ZonedDateTime](chooseZonedDateTime)
+  testChooseRange[OffsetDateTime](chooseOffsetDateTime)
+  testChooseRange[OffsetTime](chooseOffsetTime)
 
   // TODO test for ZoneId
   // TODO test for Period
