@@ -16,7 +16,10 @@ class PeriodHash extends Hash[Period] with PartialOrder[Period] {
   override def hash(x: Period): Int               = x.hashCode()
   override def eqv(x: Period, y: Period): Boolean = x == y
   override def partialCompare(x: Period, y: Period): Double =
-    PeriodPartialOrdering.tryCompare(x, y).getOrElse(Double.NaN)
+    PeriodPartialOrdering.tryCompare(x, y) match {
+      case Some(value) => value.toDouble
+      case None => Double.NaN
+    }
 }
 
 class PeriodGroup extends CommutativeGroup[Period] {
