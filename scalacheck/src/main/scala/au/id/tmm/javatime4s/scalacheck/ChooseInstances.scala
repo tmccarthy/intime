@@ -40,8 +40,8 @@ trait ChooseInstances {
       _.getMonthValue,
       _.getDayOfMonth,
       MonthDay.of,
-      _ => 0,
-      month => DAY_OF_MONTH.rangeRefinedBy(Month.of(month)).getMaximum.toInt,
+      _ => 1,
+      month => Month.of(month).maxLength(),
     )
 
   implicit val chooseLocalDate: Choose[LocalDate] =
@@ -67,8 +67,10 @@ trait ChooseInstances {
       _ => LocalTime.MAX,
     )
 
-  implicit val chooseZoneOffset: Choose[ZoneOffset] =
-    Choose.xmap[Int, ZoneOffset](ZoneOffset.ofTotalSeconds, _.getTotalSeconds)
+  // The ordering of ZoneOffset is unintuative in that +10:00 is less than +09:00 (since it "comes
+  // first" as the sun rises). Accordingly we have to reverse our mapping into the choose for long
+  implicit val chooseZoneOffset: Choose[ZoneOffset] = (min, max) =>
+    Gen.choose(max.getTotalSeconds, min.getTotalSeconds).map(totalSeconds => ZoneOffset.ofTotalSeconds(totalSeconds))
 
   implicit val chooseDayOfWeek: Choose[DayOfWeek] =
     Choose.xmap(DayOfWeek.of, _.getValue)

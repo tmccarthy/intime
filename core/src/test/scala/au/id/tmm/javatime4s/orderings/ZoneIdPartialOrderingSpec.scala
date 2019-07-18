@@ -14,8 +14,8 @@ class ZoneIdPartialOrderingSpec extends FlatSpec {
   it should "compare two offsets that are equivalent once normalised" in
     assert(ZoneIdPartialOrdering.equiv(ZoneId.of("UTC"), ZoneOffset.ofHours(0)))
 
-  it should "mark a 2 hour offset as greater than a -1 hour offset" in
-    assert(ZoneIdPartialOrdering.gt(ZoneOffset.ofHours(2), ZoneOffset.ofHours(-1)))
+  it should "mark a 2 hour offset as less than a -1 hour offset" in
+    assert(ZoneIdPartialOrdering.lt(ZoneOffset.ofHours(2), ZoneOffset.ofHours(-1)))
 
   it should "mark a zone without a constant offset as equivalent to itself" in
     assert(ZoneIdPartialOrdering.equiv(ZoneId.of("Australia/Melbourne"), ZoneId.of("Australia/Melbourne")))

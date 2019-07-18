@@ -21,6 +21,6 @@ object ZoneIdPartialOrdering extends PartialOrdering[ZoneId] {
   override def lteq(x: ZoneId, y: ZoneId): Boolean = {
     val compared = tryCompare(x, y)
 
-    compared.exists(_ >= 0)
+    compared.exists(_ <= 0)
   }
 }
