@@ -18,7 +18,7 @@ class PeriodHash extends Hash[Period] with PartialOrder[Period] {
   override def partialCompare(x: Period, y: Period): Double =
     PeriodPartialOrdering.tryCompare(x, y) match {
       case Some(value) => value.toDouble
-      case None => Double.NaN
+      case None        => Double.NaN
     }
 }
 

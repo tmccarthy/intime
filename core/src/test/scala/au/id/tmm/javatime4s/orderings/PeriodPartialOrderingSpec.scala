@@ -169,7 +169,9 @@ class PeriodPartialOrderingSpec extends FlatSpec {
     alwaysLessThanNumDays = -364,
   )
 
-  def dayRangeComparisonAssertion(period: Period)(
+  def dayRangeComparisonAssertion(
+    period: Period,
+  )(
     alwaysGreaterThanNumDays: Int,
     alwaysLessThanNumDays: Int,
   ): Unit = {

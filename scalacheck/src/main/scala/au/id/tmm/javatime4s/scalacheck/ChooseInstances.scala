@@ -75,32 +75,35 @@ trait ChooseInstances {
   implicit val chooseDayOfWeek: Choose[DayOfWeek] =
     Choose.xmap(DayOfWeek.of, _.getValue)
 
-  implicit def chooseZonedDateTime(implicit genZoneId: Arbitrary[ZoneId]): Choose[ZonedDateTime] = (min, max) =>
-    for {
-      zone <- genZoneId.arbitrary
-      localDateTime <- Gen.choose[LocalDateTime](
-        min.withZoneSameInstant(zone).toLocalDateTime,
-        max.withZoneSameInstant(zone).toLocalDateTime,
-      )
-    } yield localDateTime.atZone(zone)
+  implicit def chooseZonedDateTime(implicit genZoneId: Arbitrary[ZoneId]): Choose[ZonedDateTime] =
+    (min, max) =>
+      for {
+        zone <- genZoneId.arbitrary
+        localDateTime <- Gen.choose[LocalDateTime](
+          min.withZoneSameInstant(zone).toLocalDateTime,
+          max.withZoneSameInstant(zone).toLocalDateTime,
+        )
+      } yield localDateTime.atZone(zone)
 
-  implicit def chooseOffsetDateTime(implicit genOffset: Arbitrary[ZoneOffset]): Choose[OffsetDateTime] = (min, max) =>
-    for {
-      offset <- genOffset.arbitrary
-      localDateTime <- Gen.choose[LocalDateTime](
-        min.withOffsetSameInstant(offset).toLocalDateTime,
-        max.withOffsetSameInstant(offset).toLocalDateTime,
-      )
-    } yield localDateTime.atOffset(offset)
+  implicit def chooseOffsetDateTime(implicit genOffset: Arbitrary[ZoneOffset]): Choose[OffsetDateTime] =
+    (min, max) =>
+      for {
+        offset <- genOffset.arbitrary
+        localDateTime <- Gen.choose[LocalDateTime](
+          min.withOffsetSameInstant(offset).toLocalDateTime,
+          max.withOffsetSameInstant(offset).toLocalDateTime,
+        )
+      } yield localDateTime.atOffset(offset)
 
-  implicit def chooseOffsetTime(implicit genOffset: Arbitrary[ZoneOffset]): Choose[OffsetTime] = (min, max) =>
-    for {
-      offset <- genOffset.arbitrary
-      localTime <- Gen.choose[LocalTime](
-        min.withOffsetSameInstant(offset).toLocalTime,
-        max.withOffsetSameInstant(offset).toLocalTime,
-      )
-    } yield localTime.atOffset(offset)
+  implicit def chooseOffsetTime(implicit genOffset: Arbitrary[ZoneOffset]): Choose[OffsetTime] =
+    (min, max) =>
+      for {
+        offset <- genOffset.arbitrary
+        localTime <- Gen.choose[LocalTime](
+          min.withOffsetSameInstant(offset).toLocalTime,
+          max.withOffsetSameInstant(offset).toLocalTime,
+        )
+      } yield localTime.atOffset(offset)
 
   // TODO figure out how to do this
   implicit val chooseZoneId: Choose[ZoneId] = (min, max) => ???
@@ -130,7 +133,9 @@ trait ChooseInstances {
 
   private def makeChronoFieldRangeChoose[A <: TemporalAccessor](
     fields: ChronoField*,
-  )(makeA: PartialFunction[List[Long], A]) =
+  )(
+    makeA: PartialFunction[List[Long], A],
+  ) =
     new Choose[A] {
       override def choose(min: A, max: A): Gen[A] = generateFieldValues(min, max).map(makeA)
 

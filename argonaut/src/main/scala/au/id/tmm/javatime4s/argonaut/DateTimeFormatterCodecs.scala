@@ -8,10 +8,7 @@ import argonaut._
 
 object DateTimeFormatterCodecs {
 
-  def codecFrom[A <: TemporalAccessor](
-    formatter: DateTimeFormatter,
-    temporalQuery: TemporalQuery[A],
-  ): CodecJson[A] =
+  def codecFrom[A <: TemporalAccessor](formatter: DateTimeFormatter, temporalQuery: TemporalQuery[A]): CodecJson[A] =
     DateTimeCodecUtils.makeCodec[String, A](formatter.format, formatter.parse(_, temporalQuery))
 
   def instantCodecFrom(formatter: DateTimeFormatter): CodecJson[Instant] =

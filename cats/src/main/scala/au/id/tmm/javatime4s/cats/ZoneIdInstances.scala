@@ -7,7 +7,7 @@ import cats.{Hash, PartialOrder, Show}
 
 trait ZoneIdInstances {
   implicit val catsKernelStdHashForZoneId: Hash[ZoneId] with PartialOrder[ZoneId] = new ZoneIdHash
-  implicit val catsKernelStdShowForZoneId: Show[ZoneId] = Show.fromToString
+  implicit val catsKernelStdShowForZoneId: Show[ZoneId]                           = Show.fromToString
 }
 
 class ZoneIdHash extends Hash[ZoneId] with PartialOrder[ZoneId] {
@@ -17,6 +17,6 @@ class ZoneIdHash extends Hash[ZoneId] with PartialOrder[ZoneId] {
   override def partialCompare(x: ZoneId, y: ZoneId): Double =
     ZoneIdPartialOrdering.tryCompare(x, y) match {
       case Some(value) => value.toDouble
-      case None => Double.NaN
+      case None        => Double.NaN
     }
 }

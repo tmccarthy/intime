@@ -53,8 +53,7 @@ trait Syntaxes {
     def -(temporalAmount: TemporalAmount): LocalTime = localTime.minus(temporalAmount)
   }
 
-  implicit class OffsetDateTimeSyntax(offsetDateTime: OffsetDateTime)
-      extends OrderingOps[OffsetDateTime](offsetDateTime) {
+  implicit class OffsetDateTimeSyntax(offsetDateTime: OffsetDateTime) extends OrderingOps[OffsetDateTime](offsetDateTime) {
     def +(temporalAmount: TemporalAmount): OffsetDateTime = offsetDateTime.plus(temporalAmount)
     def -(temporalAmount: TemporalAmount): OffsetDateTime = offsetDateTime.minus(temporalAmount)
   }
