@@ -104,45 +104,20 @@ trait ChooseInstances {
       val minNanos = epochNanos(min)
       val maxNanos = epochNanos(max)
 
-      assert(minNanos < maxNanos)
-
       for {
         epochDiffDuration <- Gen.choose[Long](minNanos, maxNanos).map(Duration.ofNanos)
 
-        offsetSeconds <- if (epochDiffDuration < Duration.ZERO) {
-          Gen.choose[Long](
-            epochDiffDuration.negated().toSeconds,
-            Duration.ofHours(18).toSeconds,
-          )
-        } else if (epochDiffDuration < Duration.ofDays(1)) {
-          Gen.choose[Long](
-            (epochDiffDuration min Duration.ofHours(18)).negated().toSeconds,
-            (Duration.ofDays(1).toSeconds - epochDiffDuration.toSeconds) min Duration.ofHours(18).toSeconds,
-          )
-        } else {
-          Gen.choose[Long](
-            Duration.ofHours(-18).toSeconds,
-            Duration.ofDays(1).toSeconds - epochDiffDuration.toSeconds,
-          )
-        }
+        offsetSeconds <- Gen.choose[Long](
+          (epochDiffDuration min Duration.ofHours(18)).negated().toSeconds,
+          (Duration.ofDays(1).toSeconds - epochDiffDuration.toSeconds) min Duration.ofHours(18).toSeconds,
+        )
 
         offsetComponent = Duration.ofSeconds(offsetSeconds)
 
-        _ = assert(offsetComponent >= Duration.ofHours(-18))
-        _ = assert(offsetComponent <= Duration.ofHours(18))
-
         localTimeComponent = epochDiffDuration + offsetComponent
-
-        _ = assert(!localTimeComponent.isNegative)
-        _ = assert(epochDiffDuration == localTimeComponent - offsetComponent)
 
         offset = ZoneOffset.ofTotalSeconds(offsetComponent.toSeconds.toInt)
         localTime = LocalTime.ofNanoOfDay(localTimeComponent.toNanos)
-        offsetTime = OffsetTime.of(localTime, offset)
-
-        _ = assert(epochNanos(offsetTime) == epochDiffDuration.toNanos)
-        _ = assert(offsetTime.isAfter(min))
-        _ = assert(offsetTime.isBefore(max))
 
       } yield OffsetTime.of(localTime, offset)
     }
