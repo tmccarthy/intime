@@ -5,8 +5,8 @@ import java.time.temporal.ChronoField._
 import java.time.temporal.{ChronoField, TemporalAccessor}
 
 import au.id.tmm.javatime4s.{NANOS_PER_SECOND, _}
+import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
-import org.scalacheck.{Arbitrary, Gen}
 
 trait ChooseInstances {
 
@@ -75,20 +75,20 @@ trait ChooseInstances {
   implicit val chooseDayOfWeek: Choose[DayOfWeek] =
     Choose.xmap(DayOfWeek.of, _.getValue)
 
-  implicit def chooseZonedDateTime(implicit genZoneId: Arbitrary[ZoneId]): Choose[ZonedDateTime] =
+  implicit def chooseZonedDateTime: Choose[ZonedDateTime] =
     (min, max) =>
       for {
-        zone <- genZoneId.arbitrary
+        zone <- arbitraryZoneId.arbitrary
         localDateTime <- Gen.choose[LocalDateTime](
           min.withZoneSameInstant(zone).toLocalDateTime,
           max.withZoneSameInstant(zone).toLocalDateTime,
         )
       } yield localDateTime.atZone(zone)
 
-  implicit def chooseOffsetDateTime(implicit genOffset: Arbitrary[ZoneOffset]): Choose[OffsetDateTime] =
+  implicit def chooseOffsetDateTime: Choose[OffsetDateTime] =
     (min, max) =>
       for {
-        offset <- genOffset.arbitrary
+        offset <- arbitraryZoneOffset.arbitrary
         localDateTime <- Gen.choose[LocalDateTime](
           min.withOffsetSameInstant(offset).toLocalDateTime,
           max.withOffsetSameInstant(offset).toLocalDateTime,
