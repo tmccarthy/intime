@@ -56,7 +56,31 @@ class SensibleJavaTimeGeneratorsSpec extends FlatSpec with ScalaCheckDrivenPrope
     }
   }
 
-  // TODO test for period
-  // TODO test for duration
+  "the generator for a sensible period" should "produce values that between -100 years and 100 years" in {
+    forAll(genSensiblePeriod) { period =>
+      assert(Period.ofYears(-100) <= period && period <= Period.ofYears(100))
+    }
+  }
+
+  it should "produce values where the sign of all components is the same" in {
+    forAll(genSensiblePeriod) { period =>
+      val validSigns = Set(
+        Set(-1, 0),
+        Set(1, 0),
+        Set(1),
+        Set(-1),
+      )
+
+      val signsForPeriod = Set(period.getYears.sign, period.getMonths.sign, period.getDays.sign)
+
+      assert(validSigns contains signsForPeriod)
+    }
+  }
+
+  "the generator for a sensible duration" should "produce values that between -100 years and 100 years" in {
+    forAll(genSensibleDuration) { duration =>
+      assert(Duration.ofDays(-100 * 365) <= duration && duration <= Duration.ofDays(100 * 365))
+    }
+  }
 
 }
