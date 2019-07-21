@@ -122,12 +122,6 @@ trait ChooseInstances {
       } yield OffsetTime.of(localTime, offset)
     }
 
-  // TODO figure out how to do this
-  implicit val chooseZoneId: Choose[ZoneId] = (min, max) => ???
-
-  // TODO write a test for this
-  implicit val choosePeriod: Choose[Period] = (min, max) => ???
-
   private def combineChooses[T1 : Choose : Ordering, T2 : Choose, O](
     extractT1: O => T1,
     extractT2: O => T2,

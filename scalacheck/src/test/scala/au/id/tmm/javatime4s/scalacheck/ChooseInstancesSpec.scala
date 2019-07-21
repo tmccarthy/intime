@@ -29,9 +29,6 @@ class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
   testChooseRange[OffsetDateTime](chooseOffsetDateTime)
   testChooseRange[OffsetTime](chooseOffsetTime)
 
-  // TODO test for ZoneId
-  // TODO test for Period
-
   def testChooseRange[A : Arbitrary : Ordering : ClassTag](choose: Choose[A]): Unit = {
     val className = implicitly[ClassTag[A]].runtimeClass.getSimpleName
 

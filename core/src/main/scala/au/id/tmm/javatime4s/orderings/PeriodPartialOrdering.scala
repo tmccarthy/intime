@@ -14,19 +14,65 @@ import java.time.temporal.ChronoField.DAY_OF_YEAR
   * captures these unambiguous cases while not providing orderings in ambiguous ones.
   */
 object PeriodPartialOrdering extends PartialOrdering[Period] {
+
+  override def tryCompare(x: Period, y: Period): Option[Int] = {
+    val xNormalised = x.normalized()
+    val yNormalised = y.normalized()
+
+    if (xNormalised == yNormalised) {
+      Some(0)
+    } else if (xNormalised.getDays == yNormalised.getDays) {
+      Some(
+        Ordering
+          .Tuple2[Int, Int]
+          .compare(
+            (xNormalised.getYears, xNormalised.getMonths),
+            (yNormalised.getYears, yNormalised.getMonths),
+          ),
+      )
+    } else if ((xNormalised.getYears == yNormalised.getYears) && (xNormalised.getMonths == yNormalised.getMonths)) {
+      Some(
+        Ordering[Int].compare(xNormalised.getDays, yNormalised.getDays),
+      )
+    } else {
+      DayRange.partialOrdering.tryCompare(
+        DayRange.fromPeriod(xNormalised),
+        DayRange.fromPeriod(yNormalised),
+      )
+    }
+  }
+
+  override def lteq(x: Period, y: Period): Boolean = {
+    val compared = tryCompare(x, y)
+
+    compared == Some(0) || compared == Some(-1)
+  }
+
+}
+
+private[orderings] final case class DayRange(min: Long, max: Long) {
+  def +(that: DayRange): DayRange = DayRange(this.min + that.min, this.max + that.max)
+
+  def -(that: DayRange): DayRange = DayRange(this.min - that.min, this.max - that.max)
+  def *(scalar: Int): DayRange    = DayRange(this.min * scalar, this.max * scalar)
+}
+
+private[orderings] object DayRange {
+  def apply(min: Long, max: Long): DayRange = new DayRange(min min max, min max max)
+
   private val NUM_DAYS_PER_YEAR = DayRange(
     DAY_OF_YEAR.range().getSmallestMaximum,
     DAY_OF_YEAR.range().getMaximum,
   )
 
-  private def dayRangeOf(period: Period): DayRange =
+  def fromPeriod(period: Period): DayRange =
     DayRange(period.getDays, period.getDays) +
       lengthOfNumMonths(period.getMonths) +
       NUM_DAYS_PER_YEAR * period.getYears
 
   private def lengthOfNumMonths(numMonths: Int): DayRange = numMonths match {
     case negative if negative < 0 => lengthOfNumMonths(-negative) * -1
-    case 0                        => DayRange(0, 0)
+    case 0 => DayRange(0, 0)
     // Shortest is List(FEBRUARY) with 28 days
     // Longest is List(JANUARY) with 31 days
     case 1 => DayRange(28, 31)
@@ -61,46 +107,6 @@ object PeriodPartialOrdering extends PartialOrdering[Period] {
     // Longest is List(MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER, JANUARY) with 337 days
     case 11 => DayRange(334, 337)
   }
-
-  override def tryCompare(x: Period, y: Period): Option[Int] = {
-    val xNormalised = x.normalized()
-    val yNormalised = y.normalized()
-
-    if (xNormalised == yNormalised) {
-      Some(0)
-    } else if (xNormalised.getDays == yNormalised.getDays) {
-      Some(
-        Ordering
-          .Tuple2[Int, Int]
-          .compare(
-            (xNormalised.getYears, xNormalised.getMonths),
-            (yNormalised.getYears, yNormalised.getMonths),
-          ),
-      )
-    } else if ((xNormalised.getYears == yNormalised.getYears) && (xNormalised.getMonths == yNormalised.getMonths)) {
-      Some(
-        Ordering[Int].compare(xNormalised.getDays, yNormalised.getDays),
-      )
-    } else {
-      DayRange.partialOrdering.tryCompare(dayRangeOf(xNormalised), dayRangeOf(yNormalised))
-    }
-  }
-
-  override def lteq(x: Period, y: Period): Boolean = {
-    val compared = tryCompare(x, y)
-
-    compared == Some(0) || compared == Some(-1)
-  }
-
-}
-
-private[orderings] final case class DayRange(min: Long, max: Long) {
-  def +(that: DayRange): DayRange = DayRange(this.min + that.min, this.max + that.max)
-  def *(scalar: Int): DayRange    = DayRange(this.min * scalar, this.max * scalar)
-}
-
-private[orderings] object DayRange {
-  def apply(min: Long, max: Long): DayRange = new DayRange(min min max, min max max)
 
   implicit val partialOrdering: PartialOrdering[DayRange] = new PartialOrdering[DayRange] {
     override def tryCompare(x: DayRange, y: DayRange): Option[Int] =
