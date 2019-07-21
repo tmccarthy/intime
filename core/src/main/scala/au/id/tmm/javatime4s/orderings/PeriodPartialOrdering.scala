@@ -72,7 +72,7 @@ private[orderings] object DayRange {
 
   private def lengthOfNumMonths(numMonths: Int): DayRange = numMonths match {
     case negative if negative < 0 => lengthOfNumMonths(-negative) * -1
-    case 0 => DayRange(0, 0)
+    case 0                        => DayRange(0, 0)
     // Shortest is List(FEBRUARY) with 28 days
     // Longest is List(JANUARY) with 31 days
     case 1 => DayRange(28, 31)

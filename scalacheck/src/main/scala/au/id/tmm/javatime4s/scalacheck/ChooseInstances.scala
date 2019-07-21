@@ -116,7 +116,7 @@ trait ChooseInstances {
 
         localTimeComponent = epochDiffDuration + offsetComponent
 
-        offset = ZoneOffset.ofTotalSeconds(offsetComponent.toSeconds.toInt)
+        offset    = ZoneOffset.ofTotalSeconds(offsetComponent.toSeconds.toInt)
         localTime = LocalTime.ofNanoOfDay(localTimeComponent.toNanos)
 
       } yield OffsetTime.of(localTime, offset)

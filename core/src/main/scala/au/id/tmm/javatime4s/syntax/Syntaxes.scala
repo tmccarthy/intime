@@ -54,7 +54,7 @@ trait Syntaxes {
   }
 
   implicit class OffsetDateTimeSyntax(offsetDateTime: OffsetDateTime)
-    extends OrderingOps[OffsetDateTime](offsetDateTime) {
+      extends OrderingOps[OffsetDateTime](offsetDateTime) {
     def +(temporalAmount: TemporalAmount): OffsetDateTime = offsetDateTime.plus(temporalAmount)
     def -(temporalAmount: TemporalAmount): OffsetDateTime = offsetDateTime.minus(temporalAmount)
   }
