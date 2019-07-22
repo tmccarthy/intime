@@ -18,6 +18,8 @@ object MakeProjects {
     scalaVersion := primaryScalaVersion,
     crossScalaVersions := Seq(primaryScalaVersion) ++ otherScalaVersions,
     ScalacSettings.scalacSetting,
+    publishConfiguration := publishConfiguration.value.withOverwrite(true),
+    publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
   ) ++ DependencySettings.commonDependencies
 
 }

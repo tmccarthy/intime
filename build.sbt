@@ -7,8 +7,8 @@ addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersi
 
 inThisBuild(
   List(
-    organization := "au.id.tmm",
-    sonatypeProfileName := "au.id.tmm.intime",
+    organization := "au.id.tmm.intime",
+    sonatypeProfileName := "au.id.tmm",
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("tmccarthy", "intime", "Timothy McCarthy", "ebh042@gmail.com")),
     homepage := Some(url("https://github.com/tmccarthy/intime")),
@@ -24,6 +24,12 @@ inThisBuild(
     ),
     scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/intime"), "scm:git:https://github.com/tmccarthy/intime.git")),
     version := Git.open(root.base).describe().setTags(true).call(),
+    isSnapshot := """^\d+\.\d+\.\d+$""".r.findFirstIn(version.value).isEmpty,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    },
   )
 )
 
