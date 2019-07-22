@@ -1,13 +1,17 @@
 import DependencySettings._
 import MakeProjects._
 import org.eclipse.jgit.api.Git
+import xerial.sbt.Sonatype.GitHubHosting
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 
 inThisBuild(
   List(
-    organization := "Timothy McCarthy",
-    homepage := Some(url("https://github.com/tmccarthy")),
+    organization := "au.id.tmm",
+    sonatypeProfileName := "au.id.tmm.intime",
+    publishMavenStyle := true,
+    sonatypeProjectHosting := Some(GitHubHosting("tmccarthy", "intime", "Timothy McCarthy", "ebh042@gmail.com")),
+    homepage := Some(url("https://github.com/tmccarthy/intime")),
     startYear := Some(2019),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
