@@ -62,3 +62,5 @@ lazy val argonaut = project
     libraryDependencies += "io.argonaut" %% "argonaut" % "6.2.3",
   )
   .dependsOn(scalaCheck % "compile->test")
+
+addCommandAlias("check", ";+test;scalafmtCheckAll")
