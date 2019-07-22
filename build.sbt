@@ -23,7 +23,12 @@ inThisBuild(
       )
     ),
     scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/intime"), "scm:git:https://github.com/tmccarthy/intime.git")),
-    version := Git.open(root.base).describe().setTags(true).call(),
+    version := Git.open(root.base)
+      .describe()
+      .setTags(true)
+      .setMatch("v[0-9].[0-9].[0-9]*")
+      .call()
+      .stripPrefix("v"),
     isSnapshot := """^\d+\.\d+\.\d+$""".r.findFirstIn(version.value).isEmpty,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
