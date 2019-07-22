@@ -3,7 +3,7 @@ import sbt.Keys._
 
 object MakeProjects {
 
-  private val baseProjectName = "java-time-4s"
+  private val baseProjectName = "intime"
 
   private val primaryScalaVersion = "2.13.0"
   private val otherScalaVersions = List("2.12.8")

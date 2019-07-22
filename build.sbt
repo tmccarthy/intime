@@ -18,7 +18,7 @@ inThisBuild(
         url("http://tmm.id.au"),
       )
     ),
-    scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/java-time-4s"), "scm:git:https://github.com/tmccarthy/java-time-4s.git")),
+    scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/intime"), "scm:git:https://github.com/tmccarthy/intime.git")),
     version := Git.open(root.base).describe().setTags(true).call(),
   )
 )
