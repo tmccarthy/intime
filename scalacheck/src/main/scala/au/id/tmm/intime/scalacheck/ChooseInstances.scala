@@ -4,11 +4,12 @@ import java.time._
 import java.time.temporal.ChronoField._
 import java.time.temporal.{ChronoField, TemporalAccessor}
 
-import au.id.tmm.intime.{NANOS_PER_SECOND, _}
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 
 trait ChooseInstances {
+
+  private val NANOS_PER_SECOND = ChronoField.NANO_OF_SECOND.range().getMaximum + 1
 
   implicit val chooseDuration: Choose[Duration] =
     combineChooses[Long, Long, Duration](
@@ -108,13 +109,13 @@ trait ChooseInstances {
         epochDiffDuration <- Gen.choose[Long](minNanos, maxNanos).map(Duration.ofNanos)
 
         offsetSeconds <- Gen.choose[Long](
-          (epochDiffDuration min Duration.ofHours(18)).negated().toSeconds,
+          -(epochDiffDuration.toSeconds min Duration.ofHours(18).toSeconds),
           (Duration.ofDays(1).toSeconds - epochDiffDuration.toSeconds) min Duration.ofHours(18).toSeconds,
         )
 
         offsetComponent = Duration.ofSeconds(offsetSeconds)
 
-        localTimeComponent = epochDiffDuration + offsetComponent
+        localTimeComponent = epochDiffDuration plus offsetComponent
 
         offset    = ZoneOffset.ofTotalSeconds(offsetComponent.toSeconds.toInt)
         localTime = LocalTime.ofNanoOfDay(localTimeComponent.toNanos)

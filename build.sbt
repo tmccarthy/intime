@@ -63,7 +63,7 @@ lazy val cats = project
     catsDependency,
     catsTestKitDependency,
   )
-  .dependsOn(scalaCheck % "compile->test")
+  .dependsOn(core, scalaCheck % "test->compile")
 
 lazy val scalaCheck = project
   .in(file("scalacheck"))
@@ -71,7 +71,7 @@ lazy val scalaCheck = project
   .settings(
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0",
   )
-  .dependsOn(core % "compile->test")
+  .dependsOn(core % "test->compile")
 
 lazy val argonaut = project
   .in(file("argonaut"))
@@ -79,6 +79,6 @@ lazy val argonaut = project
   .settings(
     libraryDependencies += "io.argonaut" %% "argonaut" % "6.2.3",
   )
-  .dependsOn(scalaCheck % "compile->test")
+  .dependsOn(scalaCheck % "test->compile")
 
 addCommandAlias("check", ";+test;scalafmtCheckAll")
