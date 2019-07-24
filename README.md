@@ -1,7 +1,16 @@
-# intime
+# `intime`
 
 Libraries for integration between the [`java.time`](https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html) 
 classes and common Scala libraries.
+
+```scala
+val intimeVersion = "0.0.1"
+
+libraryDependencies += "au.id.tmm.intime" %% "intime-core"       % intimeVersion
+libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion          // Cats integration
+libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut"   % intimeVersion          // Argonaut integration
+libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % intimeVersion % "test" // Scalacheck integration
+```
 
 ## Rationale
 
@@ -68,6 +77,8 @@ Instant.MAX > Instant.EPOCH                  // true
 libraryDependencies += "au.id.tmm.intime" %% "intime-cats" % "0.0.1"
 ```
 
+All instances are tested with [discipline](https://github.com/typelevel/discipline).
+
 #### `Hash` and `Show` instances
 
 `intime-cats` provides `Hash` and `Show` instances for all classes in `java.time`.
@@ -114,4 +125,113 @@ Duration.ofDays(1) |-| Duration.ofHours(2) // PT22H
 
 ## Scalacheck integration with `intime-scalacheck`
 
+`intime-scalacheck` adds integrations with [Scalacheck](https://github.com/rickynils/scalacheck). Add it to your project 
+with:
+
+```scala
+libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % "0.0.1" # "test"
+```
+
+#### `Arbitrary` instances
+
+`intime-scalacheck` provides instances of `Arbitrary` for all classes in `java.time`. These can be used to generate 
+arbitrary instances for property-based testing.
+
+```scala
+import java.time._
+import au.id.tmm.intime.scalacheck._
+
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks._
+
+forAll { localDate: LocalDate =>
+  assert(localDate.plusDays(1) isAfter localDate)
+}
+```
+
+#### Generators for "sensible" datetime values
+
+`intime-scalacheck` provides generators for "sensible" values of `java.time` classes. The generated values are all 
+between 1900 and 2100, allowing property-based-tests that don't have to worry about peculiarities like 
+[year zero](https://en.wikipedia.org/wiki/Year_zero) or durations that overflow.
+
+```scala
+import java.time._
+import au.id.tmm.intime.scalacheck._
+
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks._
+
+forAll(genSensibleLocalDate) { localDate: LocalDate =>
+  assert(localDate.getYear >= 1900)
+}
+```
+
+#### `Choose` instances
+
+`intime-scalacheck` provides instances of `Choose`, which let you define your own generators that produce values within
+a range.
+
+```scala
+import java.time._
+import au.id.tmm.intime.scalacheck._
+
+import org.scalacheck.Gen
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks._
+
+val rangeGenerator: Gen[LocalDate] = Gen.choose(
+  min = LocalDate.of(2019, 5, 30),
+  max = LocalDate.of(2019, 7, 14),
+)
+
+forAll(rangeGenerator) { localDate: LocalDate =>
+  assert(localDate.getYear == 2019)
+}
+```
+
 ## Argonaut integration with `intime-argonaut`
+
+`intime-argonaut` provides integration with the [Argonaut](https://github.com/argonaut-io/argonaut) library for JSON
+handling. Add it to your project with:
+
+```scala
+libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut" % "0.0.1"
+```
+
+#### Standard encoders and decoders
+
+`intime-argonaut` defines `EncodeJson` and `DecodeJson` instances for all classes in the `java.time` package. They are 
+encoded and decoded to JSON strings according to the most obvious format (see 
+[`StandardCodecs`](argonaut/src/main/scala/au/id/tmm/intime/argonaut/StandardCodecs.scala).
+
+```scala
+import java.time._
+import au.id.tmm.intime.argonaut._
+
+import argonaut.Argonaut._
+
+LocalDate.of(2019, 7, 14).asJson    // jString("2019-07-14")
+jString("2019-07-14").as[LocalDate] // DecodeResult.ok(LocalDate.of(2019, 7, 14))
+```
+
+#### Custom encoders and decoders
+
+`intime-argonaut` allows for the definition of custom `EncodeJson` and `DecodeJson` instances using instances of 
+[`DateTimeFormatter`](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
+
+```scala
+import java.time._
+import au.id.tmm.intime.argonaut._
+
+import argonaut.Argonaut._
+
+val formatter = DateTimeFormatter.ofPattern("MM-dd-uuuu")
+implicit val customCodec = DateTimeFormatterCodecs.localDateCodecFrom(formatter)
+
+LocalDate.of(2019, 7, 14).asJson    // jString("07-14-2019")
+jString("07-14-2019").as[LocalDate] // DecodeResult.ok(LocalDate.of(2019, 7, 14))
+```
+
+#### Known issues
+
+* In Java 8, the standard codec for `ZonedDateTime` will fail to decode when the zone is `GMT`. This is fixed in Java 11.
+* In Java 8, the standard codec for `Duration` will drop the negative sign for durations between 0 and -1 seconds. This 
+  is fixed in Java 11.
