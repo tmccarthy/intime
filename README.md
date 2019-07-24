@@ -1,4 +1,6 @@
 # `intime`
+[![CircleCI](https://circleci.com/gh/tmccarthy/intime/tree/master.svg?style=svg)](https://circleci.com/gh/tmccarthy/intime/tree/master)
+[![Maven Central](https://img.shields.io/maven-central/v/au.id.tmm.intime/intime-core_2.13.svg)](https://repo.maven.apache.org/maven2/au/id/tmm/intime/intime-core_2.13/)
 
 Libraries for integration between the [`java.time`](https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html) 
 classes and common Scala libraries.
