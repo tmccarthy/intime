@@ -12,8 +12,6 @@ import scala.reflect.ClassTag
 
 class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
 
-  import ChooseInstances._
-
   testChooseRange[Duration](chooseDuration)
   testChooseRange[Instant](chooseInstant)
   testChooseRange[Year](chooseYear)
