@@ -6,7 +6,7 @@ Libraries for integration between the [`java.time`](https://docs.oracle.com/java
 classes and common Scala libraries.
 
 ```scala
-val intimeVersion = "0.0.1"
+val intimeVersion = "0.0.2"
 
 libraryDependencies += "au.id.tmm.intime" %% "intime-core"       % intimeVersion
 libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion          // Cats integration
@@ -23,12 +23,12 @@ ecosystem is somewhat lacking.
 The intention of this project is to provide integration between the `java.time` classes and Scala libraries, at least
 until that integration can be made a first-class-citizen of those libraries.
 
-## Standard library integration with `intime-core`
+## `intime-core`
 
 `intime-core` adds integrations with the Scala standard library. Add it to your project with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-core" % "0.0.1"
+libraryDependencies += "au.id.tmm.intime" %% "intime-core" % "0.0.2"
 ```
 
 #### `Ordering` instances for ordered classes
@@ -71,12 +71,12 @@ Duration.ofDays(30) / 10                     // P3D
 Instant.MAX > Instant.EPOCH                  // true 
 ```
 
-## Cats integration with `intime-cats`
+## `intime-cats`
 
 `intime-cats` adds integrations with [Cats](https://github.com/typelevel/cats). Add it to your project with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-cats" % "0.0.1"
+libraryDependencies += "au.id.tmm.intime" %% "intime-cats" % "0.0.2"
 ```
 
 All instances are tested with [discipline](https://github.com/typelevel/discipline).
@@ -125,13 +125,13 @@ Duration.ofDays(1) |+| Duration.ofHours(2) // P1DT2H
 Duration.ofDays(1) |-| Duration.ofHours(2) // PT22H
 ```
 
-## Scalacheck integration with `intime-scalacheck`
+## `intime-scalacheck`
 
 `intime-scalacheck` adds integrations with [Scalacheck](https://github.com/rickynils/scalacheck). Add it to your project 
 with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % "0.0.1" # "test"
+libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % "0.0.2" % "test"
 ```
 
 #### `Arbitrary` instances
@@ -189,13 +189,13 @@ forAll(rangeGenerator) { localDate: LocalDate =>
 }
 ```
 
-## Argonaut integration with `intime-argonaut`
+## `intime-argonaut`
 
 `intime-argonaut` provides integration with the [Argonaut](https://github.com/argonaut-io/argonaut) library for JSON
 handling. Add it to your project with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut" % "0.0.1"
+libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut" % "0.0.2"
 ```
 
 #### Standard encoders and decoders
