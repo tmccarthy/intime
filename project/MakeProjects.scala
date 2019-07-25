@@ -1,5 +1,6 @@
 import sbt.Keys
 import sbt.Keys._
+import xerial.sbt.Sonatype.autoImport.sonatypeProfileName
 
 object MakeProjects {
 
@@ -20,6 +21,7 @@ object MakeProjects {
     ScalacSettings.scalacSetting,
     publishConfiguration := publishConfiguration.value.withOverwrite(true),
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
+    sonatypeProfileName := "au.id.tmm",
   ) ++ DependencySettings.commonDependencies
 
 }

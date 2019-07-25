@@ -16,7 +16,6 @@ def versionFromGit =
 inThisBuild(
   List(
     organization := "au.id.tmm.intime",
-    sonatypeProfileName := "au.id.tmm",
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("tmccarthy", "intime", "Timothy McCarthy", "ebh042@gmail.com")),
     homepage := Some(url("https://github.com/tmccarthy/intime")),

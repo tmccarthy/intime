@@ -5,6 +5,13 @@
 Libraries for integration between the [`java.time`](https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html) 
 classes and common Scala libraries.
 
+* [`intime-core`](#intime-core) provides integration with the core Scala library
+* [`intime-cats`](#intime-cats) provides instances for the [Cats](https://github.com/typelevel/cats) FP library
+* [`intime-argonaut`](#intime-argonaut) provides encoders and decoders for the [Argonaut](https://github.com/argonaut-io/argonaut) JSON library
+* [`intime-scalacheck`](#intime-scalacheck) provides instances for the [Scalacheck](https://github.com/rickynils/scalacheck) property-based-testing library
+
+Add the following to your `build.sbt` file:
+
 ```scala
 val intimeVersion = "0.0.2"
 
@@ -13,15 +20,6 @@ libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion
 libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut"   % intimeVersion          // Argonaut integration
 libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % intimeVersion % "test" // Scalacheck integration
 ```
-
-## Rationale
-
-The `java.time` package is a wonderful library for representing dates, times and durations. It also has the advantage of
-coming packaged with Scala on the JVM. Unfortunately, its support within the Scala standard library and broader 
-ecosystem is somewhat lacking.
-
-The intention of this project is to provide integration between the `java.time` classes and Scala libraries, at least
-until that integration can be made a first-class-citizen of those libraries.
 
 ## `intime-core`
 
