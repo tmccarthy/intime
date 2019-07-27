@@ -1,7 +1,6 @@
 package au.id.tmm.intime.orderings
 
 import java.time.Period
-import java.time.temporal.ChronoField.DAY_OF_YEAR
 
 /**
   * A `PartialOrdering` for `Period`, which allows comparison between periods that are unambiguously
@@ -42,33 +41,24 @@ object PeriodPartialOrdering extends PartialOrdering[Period] {
     }
   }
 
-  override def lteq(x: Period, y: Period): Boolean = {
-    val compared = tryCompare(x, y)
-
-    compared == Some(0) || compared == Some(-1)
-  }
+  override def lteq(x: Period, y: Period): Boolean = tryCompare(x, y).exists(_ <= 0)
 
 }
 
-private[orderings] final case class DayRange(min: Long, max: Long) {
+private[intime] final case class DayRange(min: Long, max: Long) {
   def +(that: DayRange): DayRange = DayRange(this.min + that.min, this.max + that.max)
 
   def -(that: DayRange): DayRange = DayRange(this.min - that.min, this.max - that.max)
   def *(scalar: Int): DayRange    = DayRange(this.min * scalar, this.max * scalar)
 }
 
-private[orderings] object DayRange {
+private[intime] object DayRange {
   def apply(min: Long, max: Long): DayRange = new DayRange(min min max, min max max)
-
-  private val NUM_DAYS_PER_YEAR = DayRange(
-    DAY_OF_YEAR.range().getSmallestMaximum,
-    DAY_OF_YEAR.range().getMaximum,
-  )
 
   def fromPeriod(period: Period): DayRange =
     DayRange(period.getDays, period.getDays) +
       lengthOfNumMonths(period.getMonths) +
-      NUM_DAYS_PER_YEAR * period.getYears
+      lengthOfNumYears(period.getYears)
 
   private def lengthOfNumMonths(numMonths: Int): DayRange = numMonths match {
     case negative if negative < 0 => lengthOfNumMonths(-negative) * -1
@@ -108,6 +98,36 @@ private[orderings] object DayRange {
     case 11 => DayRange(334, 337)
   }
 
+  private def lengthOfNumYears(numYears: Int): DayRange = numYears match {
+    case negative if negative < 0 => lengthOfNumYears(-negative) * -1
+    case numYears                 => DayRange(365 * numYears, 365 * numYears) + numLeapDaysIn(numYears)
+  }
+
+  private def numLeapDaysIn(numYears: Int): DayRange = DayRange(
+    min = minNumLeapDaysIn(numYears),
+    max = maxNumLeapDaysIn(numYears),
+  )
+
+  private def minNumLeapDaysIn(numYears: Int): Int = numYears match {
+    case 0            => 0
+    case n if n < 8   => 0
+    case n if n < 104 => (n - 4) / 4
+    case n if n < 204 => (n - 4) / 4 - 1
+    case n if n < 304 => (n - 4) / 4 - 2
+    case n if n < 400 => (n - 4) / 4 - 2
+    case n            => (97 * (n / 400)) + minNumLeapDaysIn(n % 400)
+  }
+
+  private def maxNumLeapDaysIn(numYears: Int): Int = numYears match {
+    case 0            => 0
+    case n if n < 4   => 1
+    case n if n < 197 => (n - 1) / 4 + 1
+    case n if n < 297 => (n - 1) / 4
+    case n if n < 397 => (n - 1) / 4 - 1
+    case n if n < 400 => 97
+    case n            => (97 * (n / 400)) + maxNumLeapDaysIn(n % 400)
+  }
+
   implicit val partialOrdering: PartialOrdering[DayRange] = new PartialOrdering[DayRange] {
     override def tryCompare(x: DayRange, y: DayRange): Option[Int] =
       if ((x.min == x.max) && (y.min == y.max) && (x.min == y.min)) {
@@ -120,6 +140,6 @@ private[orderings] object DayRange {
         None
       }
 
-    override def lteq(x: DayRange, y: DayRange): Boolean = tryCompare(x, y) == Some(0)
+    override def lteq(x: DayRange, y: DayRange): Boolean = tryCompare(x, y).exists(_ <= 0)
   }
 }
