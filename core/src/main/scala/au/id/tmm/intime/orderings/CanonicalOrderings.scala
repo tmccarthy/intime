@@ -23,5 +23,4 @@ trait CanonicalOrderings {
   implicit val monthOrdering: Ordering[Month]                   = _ compareTo _
 
   implicit val periodPartialOrdering: PartialOrdering[Period] = PeriodPartialOrdering
-  implicit val zoneIdPartialOrdering: PartialOrdering[ZoneId] = ZoneIdPartialOrdering
 }

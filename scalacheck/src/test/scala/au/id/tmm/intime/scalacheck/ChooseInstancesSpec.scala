@@ -42,6 +42,16 @@ class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
         }
       }
     }
+
+    it should "generate a value if the min and max are equivalent" in {
+      forAll { a1: A =>
+        val generator = choose.choose(a1, a1)
+
+        forAll(generator) { a2: A =>
+          assert(Ordering[A].equiv(a1, a2))
+        }
+      }
+    }
   }
 
 }

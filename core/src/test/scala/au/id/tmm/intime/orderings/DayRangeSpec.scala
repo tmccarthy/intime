@@ -12,7 +12,7 @@ class DayRangeSpec extends FlatSpec {
     assert(DayRange.fromPeriod(Period.ofMonths(0)) === DayRange(0, 0))
   }
 
-  {
+  it should "match up with manually computed values" in {
     val months = Vector.fill(2)((1 to 12).map(Month.of)).flatten
 
     (1 to 12).foreach { numMonths =>
@@ -25,12 +25,8 @@ class DayRangeSpec extends FlatSpec {
 
       val actualDayRange = DayRange.fromPeriod(Period.ofMonths(numMonths).normalized())
 
-      it should s"have at least ${expectedDayRange.min} days for a period of $numMonths months" in
         assert(actualDayRange.min === expectedDayRange.min)
-
-      it should s"have at most ${expectedDayRange.max} days for a period of $numMonths months" in
         assert(actualDayRange.max === expectedDayRange.max)
-
     }
   }
 
@@ -40,7 +36,7 @@ class DayRangeSpec extends FlatSpec {
     assert(DayRange.fromPeriod(Period.ofYears(0)) === DayRange(0, 0))
   }
 
-  {
+  it should "match up with manually computed values" in {
     val years = (-1 to 2020).map(Year.of)
 
     (1 to 420).foreach { numYears =>
@@ -55,10 +51,7 @@ class DayRangeSpec extends FlatSpec {
 
       val actualNumLeapYears = numLeapDaysGiven(DayRange.fromPeriod(Period.ofYears(numYears)))
 
-      it should s"have at least ${expectedNumLeapYears.min} leap days for a period of $numYears years" in
         assert(actualNumLeapYears.min === expectedNumLeapYears.min)
-
-      it should s"have at most ${expectedNumLeapYears.max} leap days for a period of $numYears years" in
         assert(actualNumLeapYears.max === expectedNumLeapYears.max)
     }
   }

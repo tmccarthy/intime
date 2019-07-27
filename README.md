@@ -47,11 +47,11 @@ val dates: List[LocalDate] = List(
 dates.sorted // Sorts list of dates
 ```
 
-#### `PartialOrdering` instances for `Period` and `ZoneId`
+#### `PartialOrdering` instances for `Period`
 
-`Period` and `ZoneId` present some problems when it comes to defining an `Ordering` instance, as any two instances 
-cannot necessarily be compared (is 1 month longer or shorter than 30 days?). `intime-core` provides a `PartialOrdering`
-for each, handling those cases where an ordering can be computed.
+`Period` presents some problems when it comes to defining an `Ordering` instance, as any two instances cannot 
+necessarily be compared (is 1 month longer or shorter than 30 days?). `intime-core` provides a `PartialOrdering` for 
+each, handling those cases where an ordering can be computed.
 
 #### Overloaded operators
 
@@ -96,8 +96,7 @@ Instant.EPOCH === Instant.EPOCH // true
 
 #### `Order` and `PartialOrder` instances
 
-`intime-cats` uses the orderings in `intime-core` to define Cats `Order` instances (`PartialOrder` for `Period` and 
-`ZoneId`).
+`intime-cats` uses the orderings in `intime-core` to define Cats `Order` instances (`PartialOrder` for `Period`).
 
 ```scala
 import java.time._
