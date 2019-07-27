@@ -23,11 +23,11 @@ class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
   testChooseRange[LocalDateTime](chooseLocalDateTime)
   testChooseRange[ZoneOffset](chooseZoneOffset)
   testChooseRange[DayOfWeek](chooseDayOfWeek)
-  testChooseRange[ZonedDateTime](chooseZonedDateTime)
-  testChooseRange[OffsetDateTime](chooseOffsetDateTime)
-  testChooseRange[OffsetTime](chooseOffsetTime)
+  testChooseRange[ZonedDateTime](chooseZonedDateTime, hasOffset = true)
+  testChooseRange[OffsetDateTime](chooseOffsetDateTime, hasOffset = true)
+  testChooseRange[OffsetTime](chooseOffsetTime, hasOffset = true)
 
-  def testChooseRange[A : Arbitrary : Ordering : ClassTag](choose: Choose[A]): Unit = {
+  def testChooseRange[A : Arbitrary : Ordering : ClassTag](choose: Choose[A], hasOffset: Boolean = false): Unit = {
     val className = implicitly[ClassTag[A]].runtimeClass.getSimpleName
 
     s"the choose for $className" should "generate instances within the specified range" in {
@@ -43,12 +43,14 @@ class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
       }
     }
 
-    it should "generate a value if the min and max are equivalent" in {
-      forAll { a1: A =>
-        val generator = choose.choose(a1, a1)
+    if (!hasOffset) {
+      it should "generate a value if the min and max are equivalent" in {
+        forAll { a1: A =>
+          val generator = choose.choose(a1, a1)
 
-        forAll(generator) { a2: A =>
-          assert(Ordering[A].equiv(a1, a2))
+          forAll(generator) { a2: A =>
+            assert(Ordering[A].equiv(a1, a2))
+          }
         }
       }
     }

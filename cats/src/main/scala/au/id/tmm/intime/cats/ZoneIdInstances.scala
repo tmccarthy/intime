@@ -6,7 +6,7 @@ import cats.{Hash, Show}
 
 trait ZoneIdInstances {
   implicit val catsKernelStdHashForZoneId: Hash[ZoneId] = new ZoneIdHash
-  implicit val catsKernelStdShowForZoneId: Show[ZoneId]                           = Show.fromToString
+  implicit val catsKernelStdShowForZoneId: Show[ZoneId] = Show.fromToString
 }
 
 class ZoneIdHash extends Hash[ZoneId] {

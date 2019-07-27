@@ -25,8 +25,8 @@ class DayRangeSpec extends FlatSpec {
 
       val actualDayRange = DayRange.fromPeriod(Period.ofMonths(numMonths).normalized())
 
-        assert(actualDayRange.min === expectedDayRange.min)
-        assert(actualDayRange.max === expectedDayRange.max)
+      assert(actualDayRange.min === expectedDayRange.min)
+      assert(actualDayRange.max === expectedDayRange.max)
     }
   }
 
@@ -51,8 +51,8 @@ class DayRangeSpec extends FlatSpec {
 
       val actualNumLeapYears = numLeapDaysGiven(DayRange.fromPeriod(Period.ofYears(numYears)))
 
-        assert(actualNumLeapYears.min === expectedNumLeapYears.min)
-        assert(actualNumLeapYears.max === expectedNumLeapYears.max)
+      assert(actualNumLeapYears.min === expectedNumLeapYears.min)
+      assert(actualNumLeapYears.max === expectedNumLeapYears.max)
     }
   }
 
