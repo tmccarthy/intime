@@ -1,19 +1,32 @@
 package au.id.tmm.intime.scalacheck
 
 import java.time._
+import java.time.temporal.Temporal
 
+import au.id.tmm.intime._
 import com.github.ghik.silencer.silent
 import org.scalacheck.Shrink
 
 import scala.collection.SortedSet
 
+/**
+  * Defines instances of `org.scalacheck.Shrink` for those classes in the `java.time` package for which an instance can
+  * be defined. Broadly, classes that represent a point on the time line are shrunk toward epoch (`1970-01-01T00:00Z`).
+  * Others are shrunk toward their minimum value.
+  */
 //noinspection ScalaDeprecation
 @silent("deprecated")
 trait ShrinkInstances {
 
-  implicit val shrinkDuration: Shrink[Duration] = Shrink.shrinkAny
+  implicit val shrinkDuration: Shrink[Duration] = shrinkToEpoch[Duration, Duration](
+    epoch = Duration.ZERO,
+    difference = _ - _,
+    addDuration = _ + _,
+    divideDuration = _ / _,
+    negateDuration = -_,
+  )
 
-  implicit val shrinkInstant: Shrink[Instant] = Shrink.shrinkAny
+  implicit val shrinkInstant: Shrink[Instant] = shrinkToEpochUsingDuration(Instant.EPOCH, _ + _)
 
   implicit val shrinkYear: Shrink[Year] = Shrink.xmap[Int, Year](Year.of, _.getValue)(
     shrinkToEpoch[Int, Int](
@@ -32,9 +45,9 @@ trait ShrinkInstances {
   implicit val shrinkLocalDate: Shrink[LocalDate] = shrinkToEpoch[LocalDate, Period](
     epoch = LocalDate.EPOCH,
     difference = (d1, d2) => Period.between(d2, d1),
-    addDuration = _ plus _,
+    addDuration = _ + _,
     divideDuration = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
-    negateDuration = _.negated(),
+    negateDuration = -_,
   )
 
   implicit val shrinkLocalTime: Shrink[LocalTime] = Shrink.shrinkAny
@@ -63,6 +76,15 @@ trait ShrinkInstances {
     }
   }
 
+  private def shrinkToEpochUsingDuration[A <: Temporal](epoch: A, addDuration: (A, Duration) => A): Shrink[A] =
+    shrinkToEpoch[A, Duration](
+      epoch,
+      difference = (a1, a2) => Duration.between(a2, a1),
+      addDuration,
+      divideDuration = _ / _,
+      negateDuration = -_,
+    )
+
   private def shrinkToEpoch[A, D](
     epoch: A,
     difference: (A, A) => D,
@@ -90,4 +112,4 @@ trait ShrinkInstances {
 
 }
 
-object ShrinkInstances
+object ShrinkInstances extends ShrinkInstances

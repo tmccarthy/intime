@@ -9,7 +9,59 @@ class ShrinkInstancesSpec extends FlatSpec {
 
   behavior of "the shrink for Duration"
 
+  testShrink(Duration.ofDays(1024))(
+    Duration.ofDays(512),
+    Duration.ofDays(-512),
+    Duration.ofDays(256),
+    Duration.ofDays(-256),
+    Duration.ofDays(128),
+    Duration.ofDays(-128),
+    Duration.ofDays(64),
+    Duration.ofDays(-64),
+    Duration.ofDays(32),
+    Duration.ofDays(-32),
+    Duration.ofDays(16),
+    Duration.ofDays(-16),
+    Duration.ofDays(8),
+    Duration.ofDays(-8),
+    Duration.ofDays(4),
+    Duration.ofDays(-4),
+    Duration.ofDays(2),
+    Duration.ofDays(-2),
+    Duration.ofDays(1),
+    Duration.ofDays(-1),
+    Duration.ofHours(12),
+    Duration.ofHours(-12),
+    Duration.ofHours(6),
+    Duration.ofHours(-6),
+    Duration.ofHours(3),
+    Duration.ofHours(-3),
+  )
+
   behavior of "the shrink for Instant"
+
+  testShrink(Instant.parse("2019-07-28T03:28:00Z"))(
+    Instant.parse("1994-10-14T13:44:00Z"),
+    Instant.parse("1945-03-20T10:16:00Z"),
+    Instant.parse("1982-05-24T06:52:00Z"),
+    Instant.parse("1957-08-10T17:08:00Z"),
+    Instant.parse("1976-03-13T03:26:00Z"),
+    Instant.parse("1963-10-21T20:34:00Z"),
+    Instant.parse("1973-02-05T13:43:00Z"),
+    Instant.parse("1966-11-26T10:17:00Z"),
+    Instant.parse("1971-07-20T18:51:30Z"),
+    Instant.parse("1968-06-14T05:08:30Z"),
+    Instant.parse("1970-10-10T21:25:45Z"),
+    Instant.parse("1969-03-24T02:34:15Z"),
+    Instant.parse("1970-05-22T10:42:52.500Z"),
+    Instant.parse("1969-08-12T13:17:07.500Z"),
+    Instant.parse("1970-03-12T17:21:26.250Z"),
+    Instant.parse("1969-10-22T06:38:33.750Z"),
+    Instant.parse("1970-02-05T08:40:43.125Z"),
+    Instant.parse("1969-11-26T15:19:16.875Z"),
+    Instant.parse("1970-01-18T16:20:21.562500Z"),
+    Instant.parse("1969-12-14T07:39:38.437500Z"),
+  )
 
   behavior of "the shrink for Year"
 
@@ -109,7 +161,7 @@ class ShrinkInstancesSpec extends FlatSpec {
     val expectedShrunk = expectedShrunkSeq.toVector
 
     it should s"shrink $a to $expectedShrunk" in {
-      assert(implicitly[Shrink[A]].shrink(a).take(50).toVector === expectedShrunk)
+      assert(implicitly[Shrink[A]].shrink(a).take(20 max expectedShrunk.size).toVector === expectedShrunk)
     }
   }
 
