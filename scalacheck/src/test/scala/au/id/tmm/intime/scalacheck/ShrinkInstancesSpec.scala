@@ -38,6 +38,23 @@ class ShrinkInstancesSpec extends FlatSpec {
     Duration.ofHours(-3),
   )
 
+  testShrink(Duration.ofMinutes(1))(
+    Duration.ofSeconds(30),
+    Duration.ofSeconds(-30),
+    Duration.ofSeconds(15),
+    Duration.ofSeconds(-15),
+    Duration.ofMillis(7500),
+    Duration.ofMillis(-7500),
+    Duration.ofMillis(3750),
+    Duration.ofMillis(-3750),
+    Duration.ofMillis(1875),
+    Duration.ofMillis(-1875),
+    Duration.ofNanos(937500000),
+    Duration.ofNanos(-937500000),
+    Duration.ofNanos(468750000),
+    Duration.ofNanos(-468750000),
+  )
+
   testShrinkIsEmpty(Duration.ZERO)
 
   behavior of "the shrink for Instant"

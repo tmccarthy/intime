@@ -17,10 +17,18 @@ import scala.collection.SortedSet
 @silent("deprecated")
 trait ShrinkInstances {
 
-  implicit val shrinkDuration: Shrink[Duration] = approachZero(Duration.ZERO, _ + _, _ / _, -_)
+  implicit val shrinkDuration: Shrink[Duration] = approachZero(
+    zero = Duration.ZERO,
+  )(
+    add = _ + _,
+    divide = _ / _,
+    negate = -_,
+    isSmall = _ < Duration.ofMillis(500),
+  )
 
   implicit val shrinkPeriod: Shrink[Period] = approachZero(
     zero = Period.ZERO,
+  )(
     add = _ + _,
     divide = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
     negate = -_,
@@ -80,15 +88,16 @@ trait ShrinkInstances {
     }
   }
 
-  // TODO short-circuit when you're close enough to zero
   private def approachZero[A](
     zero: A,
+  )(
     add: (A, A) => A,
     divide: (A, Int) => A,
     negate: A => A,
+    isSmall: A => Boolean = (a: A) => a == zero,
   ): Shrink[A] = {
     def nextAfter(a: A): Stream[A] = {
-      if (a == zero) return Stream.empty
+      if (a == zero || isSmall(a)) return Stream.empty
 
       val distanceToZero = add(a, negate(zero))
       val distanceToNext = divide(distanceToZero, 2)
