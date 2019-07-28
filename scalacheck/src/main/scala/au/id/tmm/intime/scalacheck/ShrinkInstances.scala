@@ -30,7 +30,7 @@ trait ShrinkInstances {
 
   implicit val shrinkYear: Shrink[Year] = Shrink.xmap[Int, Year](Year.of, _.getValue)(
     shrinkToEpoch[Int, Int](
-      epoch = 1970,
+      epoch = LocalDate.EPOCH.getYear,
       difference = _ - _,
       addDuration = _ + _,
       divideDuration = _ / _,
@@ -40,14 +40,16 @@ trait ShrinkInstances {
 
   implicit val shrinkMonth: Shrink[Month] = shrinkEnum(Month.values)
 
-  implicit val shrinkYearMonth: Shrink[YearMonth] = Shrink.shrinkAny
+  implicit val shrinkYearMonth: Shrink[YearMonth] = shrinkToEpochUsingPeriod(
+    epoch = YearMonth.from(LocalDate.EPOCH),
+    difference = (ym1, ym2) => Period.between(ym2.atDay(1), ym1.atDay(1)),
+    addDuration = _ + _,
+  )
 
-  implicit val shrinkLocalDate: Shrink[LocalDate] = shrinkToEpoch[LocalDate, Period](
+  implicit val shrinkLocalDate: Shrink[LocalDate] = shrinkToEpochUsingPeriod(
     epoch = LocalDate.EPOCH,
     difference = (d1, d2) => Period.between(d2, d1),
     addDuration = _ + _,
-    divideDuration = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
-    negateDuration = -_,
   )
 
   implicit val shrinkLocalTime: Shrink[LocalTime] = Shrink.shrinkAny
@@ -85,6 +87,19 @@ trait ShrinkInstances {
       negateDuration = -_,
     )
 
+  private def shrinkToEpochUsingPeriod[A <: Temporal](
+    epoch: A,
+    difference: (A, A) => Period,
+    addDuration: (A, Period) => A,
+  ): Shrink[A] =
+    shrinkToEpoch[A, Period](
+      epoch,
+      difference,
+      addDuration,
+      divideDuration = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
+      negateDuration = -_,
+    )
+
   private def shrinkToEpoch[A, D](
     epoch: A,
     difference: (A, A) => D,
@@ -93,6 +108,8 @@ trait ShrinkInstances {
     negateDuration: D => D,
   ): Shrink[A] = {
     def nextAfter(a: A): Stream[A] = {
+      if (a == epoch) return Stream.empty
+
       val durationToEpoch = difference(a, epoch)
       val durationToNext  = divideDuration(durationToEpoch, 2)
 

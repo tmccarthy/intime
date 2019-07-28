@@ -38,6 +38,8 @@ class ShrinkInstancesSpec extends FlatSpec {
     Duration.ofHours(-3),
   )
 
+  testShrinkIsEmpty(Duration.ZERO)
+
   behavior of "the shrink for Instant"
 
   testShrink(Instant.parse("2019-07-28T03:28:00Z"))(
@@ -63,6 +65,8 @@ class ShrinkInstancesSpec extends FlatSpec {
     Instant.parse("1969-12-14T07:39:38.437500Z"),
   )
 
+  testShrinkIsEmpty(Instant.EPOCH)
+
   behavior of "the shrink for Year"
 
   testShrink(Year.of(2019))(
@@ -78,6 +82,8 @@ class ShrinkInstancesSpec extends FlatSpec {
     Year.of(1969),
     Year.of(1970),
   )
+
+  testShrinkIsEmpty(YearMonth.of(1970, 1))
 
   behavior of "the shrink for Month"
 
@@ -100,9 +106,25 @@ class ShrinkInstancesSpec extends FlatSpec {
     Month.JANUARY,
   )
 
-  testShrink(Month.JANUARY)()
+  testShrinkIsEmpty(Month.JANUARY)
 
   behavior of "the shrink for YearMonth"
+
+  testShrink(YearMonth.of(2019, 7))(
+    YearMonth.of(1994, 4),
+    YearMonth.of(1945, 10),
+    YearMonth.of(1982, 2),
+    YearMonth.of(1957, 12),
+    YearMonth.of(1976, 1),
+    YearMonth.of(1964, 1),
+    YearMonth.of(1973, 1),
+    YearMonth.of(1967, 1),
+    YearMonth.of(1971, 1),
+    YearMonth.of(1969, 1),
+    YearMonth.of(1970, 1),
+  )
+
+  testShrinkIsEmpty(YearMonth.of(1970, 1))
 
   behavior of "the shrink for LocalDate"
 
@@ -119,6 +141,8 @@ class ShrinkInstancesSpec extends FlatSpec {
     LocalDate.of(1969, 1, 1),
     LocalDate.of(1970, 1, 1),
   )
+
+  testShrinkIsEmpty(LocalDate.EPOCH)
 
   behavior of "the shrink for LocalTime"
 
@@ -157,10 +181,19 @@ class ShrinkInstancesSpec extends FlatSpec {
 
   behavior of "the shrink for Period"
 
+  private def testShrinkIsEmpty[A : Shrink](a: A): Unit = testShrink(a)()
+
   private def testShrink[A : Shrink](a: A)(expectedShrunkSeq: A*): Unit = {
     val expectedShrunk = expectedShrunkSeq.toVector
 
-    it should s"shrink $a to $expectedShrunk" in {
+    val testDescription =
+      if (expectedShrunk.isEmpty) {
+        s"not shrink $a"
+      } else {
+        s"shrink $a to ${expectedShrunk.mkString}"
+      }
+
+    it should testDescription in {
       assert(implicitly[Shrink[A]].shrink(a).take(20 max expectedShrunk.size).toVector === expectedShrunk)
     }
   }
