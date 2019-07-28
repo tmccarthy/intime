@@ -53,7 +53,14 @@ trait ShrinkInstances {
       .map(LocalTime.ofNanoOfDay)
   }
 
-  implicit val shrinkLocalDateTime: Shrink[LocalDateTime] = Shrink.shrinkAny
+  implicit val shrinkZonedDateTime: Shrink[ZonedDateTime] = Shrink { zdt =>
+    shrinkInstant
+      .shrink(zdt.toInstant)
+      .map(_.atZone(zdt.getZone))
+  }
+
+  implicit val shrinkLocalDateTime: Shrink[LocalDateTime] =
+    Shrink.xmap[ZonedDateTime, LocalDateTime](_.toLocalDateTime, _.atZone(ZoneOffset.UTC))
 
   implicit val shrinkMonthDay: Shrink[MonthDay] = Shrink.shrinkAny
 
@@ -62,8 +69,6 @@ trait ShrinkInstances {
   implicit val shrinkOffsetDateTime: Shrink[OffsetDateTime] = Shrink.shrinkAny
 
   implicit val shrinkOffsetTime: Shrink[OffsetTime] = Shrink.shrinkAny
-
-  implicit val shrinkZonedDateTime: Shrink[ZonedDateTime] = Shrink.shrinkAny
 
   implicit val shrinkDayOfWeek: Shrink[DayOfWeek] = shrinkEnum(DayOfWeek.values)
 
@@ -75,6 +80,7 @@ trait ShrinkInstances {
     }
   }
 
+  // TODO short-circuit when you're close enough to zero
   private def approachZero[A](
     zero: A,
     add: (A, A) => A,
