@@ -186,6 +186,15 @@ forAll(rangeGenerator) { localDate: LocalDate =>
 }
 ```
 
+#### `Shrink` instances
+
+`intime-scalacheck` provides instances for `Shrink`, which Scalacheck will use to try to identify the smallest value for
+which a test fails. These are used automatically as long as you have the import:
+
+```scala
+import au.id.tmm.intime.scalacheck._
+```
+
 ## `intime-argonaut`
 
 `intime-argonaut` provides integration with the [Argonaut](https://github.com/argonaut-io/argonaut) library for JSON
