@@ -29,7 +29,13 @@ trait ShrinkInstances {
 
   implicit val shrinkYearMonth: Shrink[YearMonth] = Shrink.shrinkAny
 
-  implicit val shrinkLocalDate: Shrink[LocalDate] = Shrink.shrinkAny
+  implicit val shrinkLocalDate: Shrink[LocalDate] = shrinkToEpoch[LocalDate, Period](
+    epoch = LocalDate.EPOCH,
+    difference = (d1, d2) => Period.between(d2, d1),
+    addDuration = _ plus _,
+    divideDuration = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
+    negateDuration = _.negated(),
+  )
 
   implicit val shrinkLocalTime: Shrink[LocalTime] = Shrink.shrinkAny
 

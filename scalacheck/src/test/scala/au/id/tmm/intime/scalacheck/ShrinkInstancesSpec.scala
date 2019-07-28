@@ -54,6 +54,20 @@ class ShrinkInstancesSpec extends FlatSpec {
 
   behavior of "the shrink for LocalDate"
 
+  testShrink(LocalDate.of(2019, 7, 28))(
+    LocalDate.of(1994, 4, 14),
+    LocalDate.of(1945, 9, 18),
+    LocalDate.of(1982, 2, 7),
+    LocalDate.of(1957, 11, 25),
+    LocalDate.of(1976, 1, 4),
+    LocalDate.of(1963, 12, 29),
+    LocalDate.of(1973, 1, 2),
+    LocalDate.of(1966, 12, 31),
+    LocalDate.of(1971, 1, 1),
+    LocalDate.of(1969, 1, 1),
+    LocalDate.of(1970, 1, 1),
+  )
+
   behavior of "the shrink for LocalTime"
 
   behavior of "the shrink for LocalDateTime"
