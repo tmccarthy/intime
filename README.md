@@ -13,7 +13,7 @@ classes and common Scala libraries.
 Add the following to your `build.sbt` file:
 
 ```scala
-val intimeVersion = "0.0.2"
+val intimeVersion = "1.0.0"
 
 libraryDependencies += "au.id.tmm.intime" %% "intime-core"       % intimeVersion
 libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion          // Cats integration
@@ -26,7 +26,7 @@ libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % intimeVersion
 `intime-core` adds integrations with the Scala standard library. Add it to your project with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-core" % "0.0.2"
+libraryDependencies += "au.id.tmm.intime" %% "intime-core" % "1.0.0"
 ```
 
 #### `Ordering` instances for ordered classes
@@ -74,7 +74,7 @@ Instant.MAX > Instant.EPOCH                  // true
 `intime-cats` adds integrations with [Cats](https://github.com/typelevel/cats). Add it to your project with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-cats" % "0.0.2"
+libraryDependencies += "au.id.tmm.intime" %% "intime-cats" % "1.0.0"
 ```
 
 All instances are tested with [discipline](https://github.com/typelevel/discipline).
@@ -128,7 +128,7 @@ Duration.ofDays(1) |-| Duration.ofHours(2) // PT22H
 with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % "0.0.2" % "test"
+libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % "1.0.0" % "test"
 ```
 
 #### `Arbitrary` instances
@@ -201,7 +201,7 @@ import au.id.tmm.intime.scalacheck._
 handling. Add it to your project with:
 
 ```scala
-libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut" % "0.0.2"
+libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut" % "1.0.0"
 ```
 
 #### Standard encoders and decoders
