@@ -146,6 +146,31 @@ class ShrinkInstancesSpec extends FlatSpec {
 
   behavior of "the shrink for LocalTime"
 
+  testShrink(LocalTime.of(13, 49, 58, 65536))(
+    LocalTime.parse("06:54:59.000032768"),
+    LocalTime.parse("03:27:29.500016384"),
+    LocalTime.parse("01:43:44.750008192"),
+    LocalTime.parse("00:51:52.375004096"),
+    LocalTime.parse("00:25:56.187502048"),
+    LocalTime.parse("00:12:58.093751024"),
+    LocalTime.parse("00:06:29.046875512"),
+    LocalTime.parse("00:03:14.523437756"),
+    LocalTime.parse("00:01:37.261718878"),
+    LocalTime.parse("00:00:48.630859439"),
+    LocalTime.parse("00:00:24.315429719"),
+    LocalTime.parse("00:00:12.157714859"),
+    LocalTime.parse("00:00:06.078857429"),
+    LocalTime.parse("00:00:03.039428714"),
+    LocalTime.parse("00:00:01.519714357"),
+    LocalTime.parse("00:00:00.759857178"),
+    LocalTime.parse("00:00:00.379928589"),
+    LocalTime.parse("00:00:00.189964294"),
+    LocalTime.parse("00:00:00.094982147"),
+    LocalTime.parse("00:00:00.047491073"),
+  )
+
+  testShrinkIsEmpty(LocalTime.MIN)
+
   behavior of "the shrink for LocalDateTime"
 
   behavior of "the shrink for MonthDay"

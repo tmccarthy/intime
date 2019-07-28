@@ -1,7 +1,6 @@
 package au.id.tmm.intime.scalacheck
 
 import java.time._
-import java.time.temporal.Temporal
 
 import au.id.tmm.intime._
 import com.github.ghik.silencer.silent
@@ -18,41 +17,41 @@ import scala.collection.SortedSet
 @silent("deprecated")
 trait ShrinkInstances {
 
-  implicit val shrinkDuration: Shrink[Duration] = shrinkToEpoch[Duration, Duration](
-    epoch = Duration.ZERO,
-    difference = _ - _,
-    addDuration = _ + _,
-    divideDuration = _ / _,
-    negateDuration = -_,
+  implicit val shrinkDuration: Shrink[Duration] = approachZero(Duration.ZERO, _ + _, _ / _, -_)
+
+  implicit val shrinkPeriod: Shrink[Period] = approachZero(
+    zero = Period.ZERO,
+    add = _ + _,
+    divide = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
+    negate = -_,
   )
 
-  implicit val shrinkInstant: Shrink[Instant] = shrinkToEpochUsingDuration(Instant.EPOCH, _ + _)
+  implicit val shrinkInstant: Shrink[Instant] =
+    Shrink.xmap[Duration, Instant](Instant.EPOCH + _, Duration.between(Instant.EPOCH, _))
 
-  implicit val shrinkYear: Shrink[Year] = Shrink.xmap[Int, Year](Year.of, _.getValue)(
-    shrinkToEpoch[Int, Int](
-      epoch = LocalDate.EPOCH.getYear,
-      difference = _ - _,
-      addDuration = _ + _,
-      divideDuration = _ / _,
-      negateDuration = -_,
-    ),
-  )
+  implicit val shrinkYear: Shrink[Year] = {
+    val epoch = Year.from(LocalDate.EPOCH)
+
+    Shrink.xmap[Int, Year](epoch.plusYears(_), y => y.minusYears(epoch.getValue).getValue)
+  }
 
   implicit val shrinkMonth: Shrink[Month] = shrinkEnum(Month.values)
 
-  implicit val shrinkYearMonth: Shrink[YearMonth] = shrinkToEpochUsingPeriod(
-    epoch = YearMonth.from(LocalDate.EPOCH),
-    difference = (ym1, ym2) => Period.between(ym2.atDay(1), ym1.atDay(1)),
-    addDuration = _ + _,
-  )
+  implicit val shrinkYearMonth: Shrink[YearMonth] = {
+    val epoch = YearMonth.from(LocalDate.EPOCH)
 
-  implicit val shrinkLocalDate: Shrink[LocalDate] = shrinkToEpochUsingPeriod(
-    epoch = LocalDate.EPOCH,
-    difference = (d1, d2) => Period.between(d2, d1),
-    addDuration = _ + _,
-  )
+    Shrink.xmap[Period, YearMonth](epoch + _, ym => Period.between(epoch.atDay(1), ym.atDay(1)))
+  }
 
-  implicit val shrinkLocalTime: Shrink[LocalTime] = Shrink.shrinkAny
+  implicit val shrinkLocalDate: Shrink[LocalDate] =
+    Shrink.xmap[Period, LocalDate](LocalDate.EPOCH + _, Period.between(LocalDate.EPOCH, _))
+
+  implicit val shrinkLocalTime: Shrink[LocalTime] = Shrink { localTime =>
+    Shrink
+      .shrink(localTime.toNanoOfDay)
+      .filter(_ >= 0)
+      .map(LocalTime.ofNanoOfDay)
+  }
 
   implicit val shrinkLocalDateTime: Shrink[LocalDateTime] = Shrink.shrinkAny
 
@@ -68,8 +67,6 @@ trait ShrinkInstances {
 
   implicit val shrinkDayOfWeek: Shrink[DayOfWeek] = shrinkEnum(DayOfWeek.values)
 
-  implicit val shrinkPeriod: Shrink[Period] = Shrink.shrinkAny
-
   private def shrinkEnum[A : Ordering](all: Iterable[A]): Shrink[A] = {
     val sortedSet = SortedSet[A](all.toVector: _*)
 
@@ -78,48 +75,26 @@ trait ShrinkInstances {
     }
   }
 
-  private def shrinkToEpochUsingDuration[A <: Temporal](epoch: A, addDuration: (A, Duration) => A): Shrink[A] =
-    shrinkToEpoch[A, Duration](
-      epoch,
-      difference = (a1, a2) => Duration.between(a2, a1),
-      addDuration,
-      divideDuration = _ / _,
-      negateDuration = -_,
-    )
-
-  private def shrinkToEpochUsingPeriod[A <: Temporal](
-    epoch: A,
-    difference: (A, A) => Period,
-    addDuration: (A, Period) => A,
-  ): Shrink[A] =
-    shrinkToEpoch[A, Period](
-      epoch,
-      difference,
-      addDuration,
-      divideDuration = (p, d) => Period.of(p.getYears / d, p.getMonths / d, p.getDays / d),
-      negateDuration = -_,
-    )
-
-  private def shrinkToEpoch[A, D](
-    epoch: A,
-    difference: (A, A) => D,
-    addDuration: (A, D) => A,
-    divideDuration: (D, Int) => D,
-    negateDuration: D => D,
+  private def approachZero[A](
+    zero: A,
+    add: (A, A) => A,
+    divide: (A, Int) => A,
+    negate: A => A,
   ): Shrink[A] = {
     def nextAfter(a: A): Stream[A] = {
-      if (a == epoch) return Stream.empty
+      if (a == zero) return Stream.empty
 
-      val durationToEpoch = difference(a, epoch)
-      val durationToNext  = divideDuration(durationToEpoch, 2)
+      val distanceToZero = add(a, negate(zero))
+      val distanceToNext = divide(distanceToZero, 2)
 
-      val next         = addDuration(epoch, durationToNext)
-      val negativeNext = addDuration(epoch, negateDuration(durationToNext))
+      val next         = add(zero, distanceToNext)
+      val negativeNext = negate(next)
 
-      if (next == epoch) {
+      if (next == zero) {
         next #:: Stream.empty
+      } else if (next == negativeNext) {
+        next #:: nextAfter(next)
       } else {
-
         next #:: negativeNext #:: nextAfter(next)
       }
     }
