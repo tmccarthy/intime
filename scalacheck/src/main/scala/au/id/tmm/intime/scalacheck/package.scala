@@ -5,3 +5,4 @@ package object scalacheck
     with ChooseInstances
     with CogenInstances
     with SensibleJavaTimeGenerators
+    with ShrinkInstances

@@ -4,6 +4,7 @@ import java.time._
 import java.time.temporal.ChronoField._
 
 import au.id.tmm.intime.scalacheck.TemporalGenUtils._
+import com.github.ghik.silencer.silent
 import org.scalacheck.Arbitrary._
 import org.scalacheck.{Arbitrary, Gen}
 
@@ -63,13 +64,14 @@ trait ArbitraryInstances {
   private val genZoneOffset: Gen[ZoneOffset] =
     genIntField(OFFSET_SECONDS).map(ZoneOffset.ofTotalSeconds)
 
+  //noinspection ScalaDeprecation
+  @silent("deprecated")
   private val genZoneId: Gen[ZoneId] = {
+    import collection.JavaConverters._
+
     val genNamedZoneId = Gen
       .oneOf {
-        // This weird way of converting from the java.util.Set to a Scala iterable is because there is
-        // no way of using the Scala converters across both 2.12 and 2.13 without hitting either a
-        // compiler error or a deprecation warning in one or the other version.
-        ZoneId.getAvailableZoneIds.stream().toArray(new Array[String](_)).toIndexedSeq
+        ZoneId.getAvailableZoneIds.asScala.toIndexedSeq
       }
       .map(ZoneId.of)
 
