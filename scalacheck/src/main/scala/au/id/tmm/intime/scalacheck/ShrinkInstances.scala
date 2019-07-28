@@ -17,6 +17,8 @@ import scala.collection.SortedSet
 @silent("deprecated")
 trait ShrinkInstances {
 
+  private val shrinkLongAlwaysPositive: Shrink[Long] = approachZero(0L)(_ + _, _ / _, -_, includeNegatives = false)
+
   implicit val shrinkDuration: Shrink[Duration] = approachZero(
     zero = Duration.ZERO,
   )(
@@ -54,12 +56,8 @@ trait ShrinkInstances {
   implicit val shrinkLocalDate: Shrink[LocalDate] =
     Shrink.xmap[Period, LocalDate](LocalDate.EPOCH + _, Period.between(LocalDate.EPOCH, _))
 
-  implicit val shrinkLocalTime: Shrink[LocalTime] = Shrink { localTime =>
-    Shrink
-      .shrink(localTime.toNanoOfDay)
-      .filter(_ >= 0)
-      .map(LocalTime.ofNanoOfDay)
-  }
+  implicit val shrinkLocalTime: Shrink[LocalTime] =
+    Shrink.xmap[Long, LocalTime](LocalTime.ofNanoOfDay, _.toNanoOfDay)(shrinkLongAlwaysPositive)
 
   implicit val shrinkZonedDateTime: Shrink[ZonedDateTime] = Shrink { zdt =>
     shrinkInstant
@@ -70,13 +68,34 @@ trait ShrinkInstances {
   implicit val shrinkLocalDateTime: Shrink[LocalDateTime] =
     Shrink.xmap[ZonedDateTime, LocalDateTime](_.toLocalDateTime, _.atZone(ZoneOffset.UTC))
 
-  implicit val shrinkMonthDay: Shrink[MonthDay] = Shrink.shrinkAny
+  implicit val shrinkMonthDay: Shrink[MonthDay] = Shrink { monthDay =>
+    for {
+      month <- Range.inclusive(monthDay.getMonthValue, 1, -1).toStream.map(Month.of)
 
-  implicit val shrinkZoneOffset: Shrink[ZoneOffset] = Shrink.shrinkAny
+      maxDaysForThisMonth = if (month == monthDay.getMonth) {
+        monthDay.getDayOfMonth - 1
+      } else {
+        month.maxLength()
+      }
 
-  implicit val shrinkOffsetDateTime: Shrink[OffsetDateTime] = Shrink.shrinkAny
+      day <- Range.inclusive(maxDaysForThisMonth, 1, -1).toStream
+    } yield MonthDay.of(month, day)
+  }
 
-  implicit val shrinkOffsetTime: Shrink[OffsetTime] = Shrink.shrinkAny
+  implicit val shrinkZoneOffset: Shrink[ZoneOffset] =
+    Shrink.xmap[Int, ZoneOffset](ZoneOffset.ofTotalSeconds, _.getTotalSeconds)
+
+  implicit val shrinkOffsetDateTime: Shrink[OffsetDateTime] = Shrink { odt =>
+    shrinkInstant
+      .shrink(odt.toInstant)
+      .map(_.atOffset(odt.getOffset))
+  }
+
+  implicit val shrinkOffsetTime: Shrink[OffsetTime] = Shrink { ot =>
+    shrinkLocalTime
+      .shrink(ot.toLocalTime)
+      .map(_.atOffset(ot.getOffset))
+  }
 
   implicit val shrinkDayOfWeek: Shrink[DayOfWeek] = shrinkEnum(DayOfWeek.values)
 
@@ -94,6 +113,7 @@ trait ShrinkInstances {
     add: (A, A) => A,
     divide: (A, Int) => A,
     negate: A => A,
+    includeNegatives: Boolean = true,
     isSmall: A => Boolean = (a: A) => a == zero,
   ): Shrink[A] = {
     def nextAfter(a: A): Stream[A] = {
@@ -102,15 +122,15 @@ trait ShrinkInstances {
       val distanceToZero = add(a, negate(zero))
       val distanceToNext = divide(distanceToZero, 2)
 
-      val next         = add(zero, distanceToNext)
-      val negativeNext = negate(next)
+      val next = add(zero, distanceToNext)
 
       if (next == zero) {
         next #:: Stream.empty
-      } else if (next == negativeNext) {
-        next #:: nextAfter(next)
-      } else {
+      } else if (includeNegatives) {
+        val negativeNext = negate(next)
         next #:: negativeNext #:: nextAfter(next)
+      } else {
+        next #:: nextAfter(next)
       }
     }
 

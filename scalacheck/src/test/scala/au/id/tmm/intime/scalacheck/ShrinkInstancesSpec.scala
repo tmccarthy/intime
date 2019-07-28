@@ -217,11 +217,148 @@ class ShrinkInstancesSpec extends FlatSpec {
 
   behavior of "the shrink for MonthDay"
 
+  testShrink(MonthDay.of(11, 30))(
+    MonthDay.of(11, 29),
+    MonthDay.of(11, 28),
+    MonthDay.of(11, 27),
+    MonthDay.of(11, 26),
+    MonthDay.of(11, 25),
+    MonthDay.of(11, 24),
+    MonthDay.of(11, 23),
+    MonthDay.of(11, 22),
+    MonthDay.of(11, 21),
+    MonthDay.of(11, 20),
+    MonthDay.of(11, 19),
+    MonthDay.of(11, 18),
+    MonthDay.of(11, 17),
+    MonthDay.of(11, 16),
+    MonthDay.of(11, 15),
+    MonthDay.of(11, 14),
+    MonthDay.of(11, 13),
+    MonthDay.of(11, 12),
+    MonthDay.of(11, 11),
+    MonthDay.of(11, 10),
+    MonthDay.of(11, 9),
+    MonthDay.of(11, 8),
+  )
+
+  testShrink(MonthDay.of(3, 2))(
+    MonthDay.of(3, 1),
+    MonthDay.of(2, 29),
+    MonthDay.of(2, 28),
+    MonthDay.of(2, 27),
+    MonthDay.of(2, 26),
+    MonthDay.of(2, 25),
+    MonthDay.of(2, 24),
+    MonthDay.of(2, 23),
+    MonthDay.of(2, 22),
+    MonthDay.of(2, 21),
+    MonthDay.of(2, 20),
+    MonthDay.of(2, 19),
+    MonthDay.of(2, 18),
+    MonthDay.of(2, 17),
+    MonthDay.of(2, 16),
+    MonthDay.of(2, 15),
+    MonthDay.of(2, 14),
+    MonthDay.of(2, 13),
+    MonthDay.of(2, 12),
+    MonthDay.of(2, 11),
+    MonthDay.of(2, 10),
+    MonthDay.of(2, 9),
+    MonthDay.of(2, 8),
+  )
+
+  testShrink(MonthDay.of(1, 5))(
+    MonthDay.of(1, 4),
+    MonthDay.of(1, 3),
+    MonthDay.of(1, 2),
+    MonthDay.of(1, 1),
+  )
+
+  testShrinkIsEmpty(MonthDay.of(1, 1))
+
   behavior of "the shrink for ZoneOffset"
+
+  testShrink(ZoneOffset.ofHoursMinutes(18, 0))(
+    ZoneOffset.of("+09:00"),
+    ZoneOffset.of("-09:00"),
+    ZoneOffset.of("+04:30"),
+    ZoneOffset.of("-04:30"),
+    ZoneOffset.of("+02:15"),
+    ZoneOffset.of("-02:15"),
+    ZoneOffset.of("+01:07:30"),
+    ZoneOffset.of("-01:07:30"),
+    ZoneOffset.of("+00:33:45"),
+    ZoneOffset.of("-00:33:45"),
+    ZoneOffset.of("+00:16:52"),
+    ZoneOffset.of("-00:16:52"),
+    ZoneOffset.of("+00:08:26"),
+    ZoneOffset.of("-00:08:26"),
+    ZoneOffset.of("+00:04:13"),
+    ZoneOffset.of("-00:04:13"),
+    ZoneOffset.of("+00:02:06"),
+    ZoneOffset.of("-00:02:06"),
+    ZoneOffset.of("+00:01:03"),
+    ZoneOffset.of("-00:01:03"),
+  )
+
+  testShrinkIsEmpty(ZoneOffset.UTC)
 
   behavior of "the shrink for OffsetDateTime"
 
+  testShrink(OffsetDateTime.parse("2019-07-28T17:14:04+10:00"))(
+    OffsetDateTime.parse("1994-10-15T01:37:02+10:00"),
+    OffsetDateTime.parse("1945-03-20T18:22:58+10:00"),
+    OffsetDateTime.parse("1982-05-24T17:48:31+10:00"),
+    OffsetDateTime.parse("1957-08-11T02:11:29+10:00"),
+    OffsetDateTime.parse("1976-03-13T13:54:15.500+10:00"),
+    OffsetDateTime.parse("1963-10-22T06:05:44.500+10:00"),
+    OffsetDateTime.parse("1973-02-05T23:57:07.750+10:00"),
+    OffsetDateTime.parse("1966-11-26T20:02:52.250+10:00"),
+    OffsetDateTime.parse("1971-07-21T04:58:33.875+10:00"),
+    OffsetDateTime.parse("1968-06-14T15:01:26.125+10:00"),
+    OffsetDateTime.parse("1970-10-11T07:29:16.937500+10:00"),
+    OffsetDateTime.parse("1969-03-24T12:30:43.062500+10:00"),
+    OffsetDateTime.parse("1970-05-22T20:44:38.468750+10:00"),
+    OffsetDateTime.parse("1969-08-12T23:15:21.531250+10:00"),
+    OffsetDateTime.parse("1970-03-13T03:22:19.234375+10:00"),
+    OffsetDateTime.parse("1969-10-22T16:37:40.765625+10:00"),
+    OffsetDateTime.parse("1970-02-05T18:41:09.617187500+10:00"),
+    OffsetDateTime.parse("1969-11-27T01:18:50.382812500+10:00"),
+    OffsetDateTime.parse("1970-01-19T02:20:34.808593750+10:00"),
+    OffsetDateTime.parse("1969-12-14T17:39:25.191406250+10:00"),
+  )
+
+  testShrinkIsEmpty(Instant.EPOCH.atOffset(ZoneOffset.UTC))
+
   behavior of "the shrink for OffsetTime"
+
+  testShrink(OffsetTime.of(13, 49, 58, 65536, ZoneOffset.ofHours(10)))(
+    OffsetTime.parse("06:54:59.000032768+10:00"),
+    OffsetTime.parse("03:27:29.500016384+10:00"),
+    OffsetTime.parse("01:43:44.750008192+10:00"),
+    OffsetTime.parse("00:51:52.375004096+10:00"),
+    OffsetTime.parse("00:25:56.187502048+10:00"),
+    OffsetTime.parse("00:12:58.093751024+10:00"),
+    OffsetTime.parse("00:06:29.046875512+10:00"),
+    OffsetTime.parse("00:03:14.523437756+10:00"),
+    OffsetTime.parse("00:01:37.261718878+10:00"),
+    OffsetTime.parse("00:00:48.630859439+10:00"),
+    OffsetTime.parse("00:00:24.315429719+10:00"),
+    OffsetTime.parse("00:00:12.157714859+10:00"),
+    OffsetTime.parse("00:00:06.078857429+10:00"),
+    OffsetTime.parse("00:00:03.039428714+10:00"),
+    OffsetTime.parse("00:00:01.519714357+10:00"),
+    OffsetTime.parse("00:00:00.759857178+10:00"),
+    OffsetTime.parse("00:00:00.379928589+10:00"),
+    OffsetTime.parse("00:00:00.189964294+10:00"),
+    OffsetTime.parse("00:00:00.094982147+10:00"),
+    OffsetTime.parse("00:00:00.047491073+10:00"),
+  )
+
+  testShrinkIsEmpty(LocalTime.MIN.atOffset(ZoneOffset.MAX))
+  testShrinkIsEmpty(LocalTime.MIN.atOffset(ZoneOffset.UTC))
+  testShrinkIsEmpty(LocalTime.MIN.atOffset(ZoneOffset.MIN))
 
   behavior of "the shrink for ZonedDateTime"
 
@@ -268,10 +405,19 @@ class ShrinkInstancesSpec extends FlatSpec {
     DayOfWeek.MONDAY,
   )
 
-  testShrink(DayOfWeek.MONDAY)(
-    )
+  testShrinkIsEmpty(DayOfWeek.MONDAY)
 
   behavior of "the shrink for Period"
+
+  testShrink(Period.of(5, 6, 9))(
+    Period.of(2, 3, 4),
+    Period.of(-2, -3, -4),
+    Period.of(1, 1, 2),
+    Period.of(-1, -1, -2),
+    Period.of(0, 0, 1),
+    Period.of(0, 0, -1),
+    Period.of(0, 0, 0),
+  )
 
   private def testShrinkIsEmpty[A : Shrink](a: A): Unit = testShrink(a)()
 
