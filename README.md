@@ -21,6 +21,9 @@ libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut"   % intimeVersion
 libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % intimeVersion % "test" // Scalacheck integration
 ```
 
+<br/>
+<br/>
+
 ## `intime-core`
 
 `intime-core` adds integrations with the Scala standard library. Add it to your project with:
@@ -68,6 +71,9 @@ Period.ofDays(5) * 3                         // P15D
 Duration.ofDays(30) / 10                     // P3D
 Instant.MAX > Instant.EPOCH                  // true 
 ```
+
+<br/>
+<br/>
 
 ## `intime-cats`
 
@@ -121,6 +127,9 @@ import cats.syntax.group._
 Duration.ofDays(1) |+| Duration.ofHours(2) // P1DT2H
 Duration.ofDays(1) |-| Duration.ofHours(2) // PT22H
 ```
+
+<br/>
+<br/>
 
 ## `intime-scalacheck`
 
@@ -194,6 +203,9 @@ which a test fails. These are used automatically as long as you have the import:
 ```scala
 import au.id.tmm.intime.scalacheck._
 ```
+
+<br/>
+<br/>
 
 ## `intime-argonaut`
 
