@@ -15,57 +15,75 @@ use_environment: &use_environment
     JVM_OPTS: -Xmx3200m
     TERM: dumb
 
-setup_sbt_cache_steps: &setup_sbt_cache_steps
+load_cache_step: &load_cache_step
   - restore_cache:
       keys:
         - v1-dependencies-{{ checksum "build.sbt" }}
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
-  - run: cat /dev/null | ./sbt +update
+update_sbt_dependencies_step: &update_sbt_dependencies_step
+  - run:
+      name: Update SBT dependencies
+      command: cat /dev/null | ./sbt +update
 
+save_cache_step: &save_cache_step
   - save_cache:
       paths:
         - ~/.m2
       key: v1-dependencies--{{ checksum "build.sbt" }}
 
-run_tests_steps: &run_tests_steps
+run_tests_step: &run_tests_step
   - run:
       name: Run Tests
       command: cat /dev/null | ./sbt check
+
+git_fetch_tags_step: &git_fetch_tags_step
+  - run:
+      name: Fetch git tags
+      command: git fetch --tags
+
+decrypt_secrets_step: &decrypt_secrets_step
+  - run:
+      name: Decrypt secrets
+      command: ./.secrets/decrypt.sh "${AES_KEY}"
+
+release_step: &release_step
+  - run:
+      name: Release to Sonatype
+      command: ./sbt +releaseEarly
+
+test: &test
+  steps:
+    - checkout
+    - <<: *load_cache_step
+    - <<: *update_sbt_dependencies_step
+    - <<: *save_cache_step
+    - <<: *run_tests_step
+
+release: &release
+  steps
+    - checkout
+    - <<: *git_fetch_tags_step
+    - <<: *load_cache_step
+    - <<: *decrypt_secrets_step
+    - <<: *release_step
 
 jobs:
   test_jdk_8:
     <<: *use_jdk_8
     <<: *use_environment
-    steps:
-      - checkout
-      - <<: *setup_sbt_cache_steps
-      - <<: *run_tests_steps
+    <<: *test
 
   test_jdk_11:
     <<: *use_jdk_11
     <<: *use_environment
-    steps:
-      - checkout
-      - <<: *setup_sbt_cache_steps
-      - <<: *run_tests_steps
+    <<: *test
 
   release:
     <<: *use_jdk_11
     <<: *use_environment
-    steps:
-      - checkout
-      - run:
-          name: Fetch git tags
-          command: git fetch --tags
-      - <<: *setup_sbt_cache_steps
-      - run:
-          name: Decrypt secrets
-          command: ./.secrets/decrypt.sh "${AES_KEY}"
-      - run:
-          name: Release to Sonatype
-          command: ./sbt +releaseEarly
+    <<: *release
 
 workflows:
   version: 2
