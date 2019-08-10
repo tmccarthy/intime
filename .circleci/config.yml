@@ -74,9 +74,9 @@ workflows:
       - test_jdk_8
       - test_jdk_11
       - release:
-          branches:
-            only:
-              - master
+          filters:
+            branches:
+              only: master
           context: org-global
           requires:
             - test_jdk_11
