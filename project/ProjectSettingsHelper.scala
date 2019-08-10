@@ -21,7 +21,10 @@ final case class ProjectSettingsHelper private (
 ) {
 
   def settingsForBuild = {
-    sbt.inThisBuild(
+    List(
+      Keys.aggregate in releaseEarly := false, // Workaround for https://github.com/scalacenter/sbt-release-early/issues/30
+      Sonatype.SonatypeKeys.sonatypeProfileName := sonatypeProfile,
+    ) ++ sbt.inThisBuild(
       List(
         organization := sonatypeProfile + "." + baseProjectName,
         publishMavenStyle := true,
@@ -43,7 +46,7 @@ final case class ProjectSettingsHelper private (
         releaseEarlyWith := SonatypePublisher,
         releaseEarlyEnableInstantReleases := false,
       )
-    ) ++ (Sonatype.SonatypeKeys.sonatypeProfileName := sonatypeProfile)
+    )
   }
 
   def settingsForRootProject = Seq(
