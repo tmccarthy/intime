@@ -159,7 +159,7 @@ class ShrinkInstancesSpec extends FlatSpec {
     LocalDate.of(1970, 1, 1),
   )
 
-  testShrinkIsEmpty(LocalDate.EPOCH)
+  testShrinkIsEmpty(LocalDate.of(1970, 1, 1))
 
   behavior of "the shrink for LocalTime"
 

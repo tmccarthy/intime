@@ -110,15 +110,15 @@ trait ChooseInstances {
         epochDiffDuration <- Gen.choose[Long](minNanos, maxNanos).map(Duration.ofNanos)
 
         offsetSeconds <- Gen.choose[Long](
-          (epochDiffDuration min Duration.ofHours(18)).negated().toSeconds,
-          (Duration.ofDays(1).toSeconds - epochDiffDuration.toSeconds) min Duration.ofHours(18).toSeconds,
+          (epochDiffDuration min Duration.ofHours(18)).negated().getSeconds,
+          (Duration.ofDays(1).getSeconds - epochDiffDuration.getSeconds) min Duration.ofHours(18).getSeconds,
         )
 
         offsetComponent = Duration.ofSeconds(offsetSeconds)
 
         localTimeComponent = epochDiffDuration + offsetComponent
 
-        offset    = ZoneOffset.ofTotalSeconds(offsetComponent.toSeconds.toInt)
+        offset    = ZoneOffset.ofTotalSeconds(offsetComponent.getSeconds.toInt)
         localTime = LocalTime.ofNanoOfDay(localTimeComponent.toNanos)
 
       } yield OffsetTime.of(localTime, offset)

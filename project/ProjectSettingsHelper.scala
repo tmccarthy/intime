@@ -1,7 +1,7 @@
 import ch.epfl.scala.sbt.release.AutoImported._
 import com.typesafe.sbt.SbtPgp.autoImportImpl.{pgpPublicRing, pgpSecretRing}
 import sbt.Keys._
-import sbt.{Developer, Keys, ScmInfo, file, url}
+import sbt._
 import xerial.sbt.Sonatype
 import xerial.sbt.Sonatype.GitHubHosting
 import xerial.sbt.Sonatype.autoImport.sonatypeProjectHosting

@@ -40,7 +40,7 @@ trait ShrinkInstances {
     Shrink.xmap[Duration, Instant](Instant.EPOCH + _, Duration.between(Instant.EPOCH, _))
 
   implicit val shrinkYear: Shrink[Year] = {
-    val epoch = Year.from(LocalDate.EPOCH)
+    val epoch = Year.from(Instant.EPOCH.atZone(ZoneOffset.UTC))
 
     Shrink.xmap[Int, Year](epoch.plusYears(_), y => y.minusYears(epoch.getValue).getValue)
   }
@@ -48,13 +48,16 @@ trait ShrinkInstances {
   implicit val shrinkMonth: Shrink[Month] = shrinkEnum(Month.values)
 
   implicit val shrinkYearMonth: Shrink[YearMonth] = {
-    val epoch = YearMonth.from(LocalDate.EPOCH)
+    val epoch = YearMonth.from(Instant.EPOCH.atZone(ZoneOffset.UTC))
 
     Shrink.xmap[Period, YearMonth](epoch + _, ym => Period.between(epoch.atDay(1), ym.atDay(1)))
   }
 
-  implicit val shrinkLocalDate: Shrink[LocalDate] =
-    Shrink.xmap[Period, LocalDate](LocalDate.EPOCH + _, Period.between(LocalDate.EPOCH, _))
+  implicit val shrinkLocalDate: Shrink[LocalDate] = {
+    val epoch = Instant.EPOCH.atZone(ZoneOffset.UTC).toLocalDate
+
+    Shrink.xmap[Period, LocalDate](epoch + _, Period.between(epoch, _))
+  }
 
   implicit val shrinkLocalTime: Shrink[LocalTime] =
     Shrink.xmap[Long, LocalTime](LocalTime.ofNanoOfDay, _.toNanoOfDay)(shrinkLongAlwaysPositive)
