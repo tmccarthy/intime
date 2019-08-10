@@ -95,6 +95,6 @@ workflows:
           filters:
             branches:
               only: master
-          context: org-global
+          context: Sonatype
           requires:
             - test_jdk_11
