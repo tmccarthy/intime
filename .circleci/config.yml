@@ -93,8 +93,8 @@ workflows:
       - test_jdk_11
       - release:
           filters:
-            branches:
-              only: master
+            tags:
+              only: /^\d+\.\d+\.\d+$/
           context: Sonatype
           requires:
             - test_jdk_11
