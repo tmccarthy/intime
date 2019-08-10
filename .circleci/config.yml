@@ -15,9 +15,7 @@ use_environment: &use_environment
     JVM_OPTS: -Xmx3200m
     TERM: dumb
 
-run_tests_steps: &run_tests_steps
-  - checkout
-
+setup_sbt_cache_steps: &setup_sbt_cache_steps
   - restore_cache:
       keys:
         - v1-dependencies-{{ checksum "build.sbt" }}
@@ -31,6 +29,7 @@ run_tests_steps: &run_tests_steps
         - ~/.m2
       key: v1-dependencies--{{ checksum "build.sbt" }}
 
+run_tests_steps: &run_tests_steps
   - run:
       name: Run Tests
       command: cat /dev/null | ./sbt check
@@ -40,41 +39,30 @@ jobs:
     <<: *use_jdk_8
     <<: *use_environment
     steps:
-      <<: *run_tests_steps
+      - checkout
+      - <<: *setup_sbt_cache_steps
+      - <<: *run_tests_steps
 
   test_jdk_11:
     <<: *use_jdk_11
     <<: *use_environment
     steps:
-      <<: *run_tests_steps
+      - checkout
+      - <<: *setup_sbt_cache_steps
+      - <<: *run_tests_steps
 
   release:
     <<: *use_jdk_11
     <<: *use_environment
     steps:
       - checkout
-
       - run:
           name: Fetch git tags
           command: git fetch --tags
-
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: cat /dev/null | ./sbt +update
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
-
+      - <<: *setup_sbt_cache_steps
       - run:
           name: Decrypt secrets
           command: ./.secrets/decrypt.sh "${AES_KEY}"
-
       - run:
           name: Release to Sonatype
           command: ./sbt +releaseEarly
