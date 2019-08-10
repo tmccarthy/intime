@@ -62,7 +62,7 @@ test: &test
     - <<: *run_tests_step
 
 release: &release
-  steps
+  steps:
     - checkout
     - <<: *git_fetch_tags_step
     - <<: *load_cache_step
