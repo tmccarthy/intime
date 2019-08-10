@@ -15,5 +15,5 @@ mkdir -p $DEST_DIR
 for ENCRYPTED_FILE in "$SOURCE_DIR"/*.secret; do
   FILE_NAME=$(basename "$ENCRYPTED_FILE")
   DECRYPTED_NAME=${FILE_NAME%".secret"}
-  openssl $OPENSSL_COMMAND -d -in "$ENCRYPTED_FILE" -k "$KEY" -out "$DEST_DIR/$DECRYPTED_NAME"
+  openssl $OPENSSL_COMMAND -d -in "$ENCRYPTED_FILE" -k "$KEY" -out "$DEST_DIR/$DECRYPTED_NAME" -md md5
 done
