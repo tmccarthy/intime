@@ -1,35 +1,14 @@
 import DependencySettings._
-import MakeProjects._
-import xerial.sbt.Sonatype.GitHubHosting
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 
-inThisBuild(
-  List(
-    organization := "au.id.tmm.intime",
-    publishMavenStyle := true,
-    sonatypeProjectHosting := Some(GitHubHosting("tmccarthy", "intime", "Timothy McCarthy", "ebh042@gmail.com")),
-    homepage := Some(url("https://github.com/tmccarthy/intime")),
-    startYear := Some(2019),
-    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-    developers := List(
-      Developer(
-        "tmccarthy",
-        "Timothy McCarthy",
-        "ebh042@gmail.com",
-        url("http://tmm.id.au"),
-      )
-    ),
-    scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/intime"), "scm:git:https://github.com/tmccarthy/intime.git")),
-    pgpPublicRing := file("/tmp/secrets/pubring.kbx"),
-    pgpSecretRing := file("/tmp/secrets/secring.gpg"),
-    releaseEarlyWith := SonatypePublisher,
-  )
-)
+val settingsHelper = ProjectSettingsHelper("au.id.tmm","intime")()
+
+settingsHelper.settingsForBuild
 
 lazy val root = project
   .in(file("."))
-  .settings(rootProjectSettings)
+  .settings(settingsHelper.settingsForRootProject)
   .settings(console := (console in Compile in core).value)
   .aggregate(
     core,
@@ -40,11 +19,11 @@ lazy val root = project
 
 lazy val core = project
   .in(file("core"))
-  .settings(subProjectSettings("core"))
+  .settings(settingsHelper.settingsForSubprojectCalled("core"))
 
 lazy val cats = project
   .in(file("cats"))
-  .settings(subProjectSettings("cats"))
+  .settings(settingsHelper.settingsForSubprojectCalled("cats"))
   .settings(
     catsDependency,
     catsTestKitDependency,
@@ -53,7 +32,7 @@ lazy val cats = project
 
 lazy val scalaCheck = project
   .in(file("scalacheck"))
-  .settings(subProjectSettings("scalacheck"))
+  .settings(settingsHelper.settingsForSubprojectCalled("scalacheck"))
   .settings(
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0",
   )
@@ -61,7 +40,7 @@ lazy val scalaCheck = project
 
 lazy val argonaut = project
   .in(file("argonaut"))
-  .settings(subProjectSettings("argonaut"))
+  .settings(settingsHelper.settingsForSubprojectCalled("argonaut"))
   .settings(
     libraryDependencies += "io.argonaut" %% "argonaut" % "6.2.3",
   )
