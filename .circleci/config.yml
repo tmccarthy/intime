@@ -1,35 +1,77 @@
-# Scala CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/sample-config/ for more details
-#
-version: 2
+version: 2.0
+
+use_jdk_8: &use_jdk_8
+  docker:
+    - image: circleci/openjdk:8-jdk
+
+use_jdk_11: &use_jdk_11
+  docker:
+    - image: circleci/openjdk:11-jdk
+
+use_environment: &use_environment
+  working_directory: ~/repo
+
+  environment:
+    JVM_OPTS: -Xmx3200m
+    TERM: dumb
+
+setup_sbt_cache_steps: &setup_sbt_cache_steps
+  - restore_cache:
+      keys:
+        - v1-dependencies-{{ checksum "build.sbt" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+
+  - run: cat /dev/null | ./sbt +update
+
+  - save_cache:
+      paths:
+        - ~/.m2
+      key: v1-dependencies--{{ checksum "build.sbt" }}
+
+run_tests_steps: &run_tests_steps
+  - run:
+      name: Run Tests
+      command: cat /dev/null | ./sbt check
+
 jobs:
-  build:
-    docker:
-      - image: circleci/openjdk:11-jdk
-
-    working_directory: ~/repo
-
-    environment:
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-
+  test_jdk_8:
+    <<: *use_jdk_8
+    <<: *use_environment
     steps:
       - checkout
+      - <<: *setup_sbt_cache_steps
+      - <<: *run_tests_steps
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+  test_jdk_11:
+    <<: *use_jdk_11
+    <<: *use_environment
+    steps:
+      - checkout
+      - <<: *setup_sbt_cache_steps
+      - <<: *run_tests_steps
 
-      - run: cat /dev/null | ./sbt +update
+  release:
+    <<: *use_jdk_11
+    <<: *use_environment
+    steps:
+      - checkout
+      - run:
+          name: Fetch git tags
+          command: git fetch --tags
+      - <<: *setup_sbt_cache_steps
+      - run:
+          name: Decrypt secrets
+          command: ./.secrets/decrypt.sh "${AES_KEY}"
+      - run:
+          name: Release to Sonatype
+          command: ./sbt +releaseEarly
 
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
-
-      # run tests!
-      - run: cat /dev/null | ./sbt check
+workflows:
+  version: 2
+  build:
+    jobs:
+      - release:
+          context: org-global
+          requires:
+            - test_jdk_11

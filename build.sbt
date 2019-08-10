@@ -1,17 +1,8 @@
 import DependencySettings._
 import MakeProjects._
-import org.eclipse.jgit.api.Git
 import xerial.sbt.Sonatype.GitHubHosting
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
-
-def versionFromGit =
-  Git.open(root.base)
-    .describe()
-    .setTags(true)
-    .setMatch("v[0-9].[0-9].[0-9]*")
-    .call()
-    .stripPrefix("v")
 
 inThisBuild(
   List(
@@ -30,13 +21,9 @@ inThisBuild(
       )
     ),
     scmInfo := Some(ScmInfo(url("https://github.com/tmccarthy/intime"), "scm:git:https://github.com/tmccarthy/intime.git")),
-    isSnapshot := """^\d+\.\d+\.\d+$""".r.findFirstIn(versionFromGit).isEmpty,
-    version := (if (isSnapshot.value) versionFromGit + "-SNAPSHOT" else versionFromGit),
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
+    pgpPublicRing := file("/tmp/secrets/pubring.kbx"),
+    pgpSecretRing := file("/tmp/secrets/secring.gpg"),
+    releaseEarlyWith := SonatypePublisher,
   )
 )
 
