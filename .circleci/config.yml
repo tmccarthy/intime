@@ -6,7 +6,15 @@ use_jdk_8: &use_jdk_8
 
 use_jdk_11: &use_jdk_11
   docker:
-    - image: circleci/openjdk:11-jdk
+    - image: circleci/openjdk:11.0.2-jdk
+
+use_scala_2_12: &use_scala_2_12
+  environment:
+    SCALA_VERSION: 2.12.8
+
+use_scala_2_13: &use_scala_2_13
+  environment:
+    SCALA_VERSION: 2.13.0
 
 use_environment: &use_environment
   working_directory: ~/repo
@@ -18,9 +26,13 @@ use_environment: &use_environment
 load_cache_step: &load_cache_step
   - restore_cache:
       keys:
-        - v1-dependencies-{{ checksum "build.sbt" }}
+        - v1-dependencies-{{ .Revision }}
         # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
+      paths:
+        - "~/.ivy2/cache"
+        - "~/.sbt"
+        - "~/.m2"
 
 update_sbt_dependencies_step: &update_sbt_dependencies_step
   - run:
@@ -30,8 +42,10 @@ update_sbt_dependencies_step: &update_sbt_dependencies_step
 save_cache_step: &save_cache_step
   - save_cache:
       paths:
-        - ~/.m2
-      key: v1-dependencies--{{ checksum "build.sbt" }}
+        - "~/.ivy2/cache"
+        - "~/.sbt"
+        - "~/.m2"
+      key: v1-dependencies-{{ .Revision }}
 
 run_tests_step: &run_tests_step
   - run:
@@ -51,7 +65,7 @@ decrypt_secrets_step: &decrypt_secrets_step
 release_step: &release_step
   - run:
       name: Release to Sonatype
-      command: ./sbt +releaseEarly
+      command: ./sbt ++${SCALA_VERSION}! releaseEarly
 
 test: &test
   steps:
@@ -80,8 +94,15 @@ jobs:
     <<: *use_environment
     <<: *test
 
-  release:
-    <<: *use_jdk_11
+  release_scala_2_12:
+    <<: *use_jdk_8
+    <<: *use_scala_2_12
+    <<: *use_environment
+    <<: *release
+
+  release_scala_2_13:
+    <<: *use_jdk_8
+    <<: *use_scala_2_13
     <<: *use_environment
     <<: *release
 
@@ -97,11 +118,22 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - release:
+      - release_scala_2_13:
           context: Sonatype
           requires:
             - test_jdk_8
             - test_jdk_11
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
+            branches:
+              ignore: /.*/
+      - release_scala_2_12:
+          context: Sonatype
+          requires:
+            - test_jdk_8
+            - test_jdk_11
+            - release_scala_2_13
           filters:
             tags:
               only: /^v\d+\.\d+\.\d+$/
