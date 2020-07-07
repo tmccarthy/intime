@@ -2,7 +2,7 @@
 [![CircleCI](https://circleci.com/gh/tmccarthy/intime/tree/master.svg?style=svg)](https://circleci.com/gh/tmccarthy/intime/tree/master)
 [![Maven Central](https://img.shields.io/maven-central/v/au.id.tmm.intime/intime-core_2.13.svg)](https://repo.maven.apache.org/maven2/au/id/tmm/intime/intime-core_2.13/)
 
-Libraries for integration between the [`java.time`](https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html) 
+Libraries for integration between the [`java.time`](https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html)
 classes and common Scala libraries.
 
 * [`intime-core`](#intime-core) provides integration with the core Scala library
@@ -13,12 +13,12 @@ classes and common Scala libraries.
 Add the following to your `build.sbt` file:
 
 ```scala
-val intimeVersion = "1.0.2"
+val intimeVersion = "1.1.0"
 
 libraryDependencies += "au.id.tmm.intime" %% "intime-core"       % intimeVersion
-libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion          // Cats integration
-libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut"   % intimeVersion          // Argonaut integration
-libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % intimeVersion % "test" // Scalacheck integration
+libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion        // Cats integration
+libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut"   % intimeVersion        // Argonaut integration
+libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % intimeVersion % Test // Scalacheck integration
 ```
 
 <br/>
@@ -34,7 +34,7 @@ libraryDependencies += "au.id.tmm.intime" %% "intime-core" % "1.0.2"
 
 #### `Ordering` instances for ordered classes
 
-`intime-core` provides `Ordering` instances for all classes in the `java.time` package for which an ordering can be 
+`intime-core` provides `Ordering` instances for all classes in the `java.time` package for which an ordering can be
 defined. This includes the most common classes like `Instant` and `LocalDate`.
 
 ```scala
@@ -52,8 +52,8 @@ dates.sorted // Sorts list of dates
 
 #### `PartialOrdering` instances for `Period`
 
-`Period` presents some problems when it comes to defining an `Ordering` instance, as any two instances cannot 
-necessarily be compared (is 1 month longer or shorter than 30 days?). `intime-core` provides a `PartialOrdering` for 
+`Period` presents some problems when it comes to defining an `Ordering` instance, as any two instances cannot
+necessarily be compared (is 1 month longer or shorter than 30 days?). `intime-core` provides a `PartialOrdering` for
 each, handling those cases where an ordering can be computed.
 
 #### Overloaded operators
@@ -69,7 +69,7 @@ Instant.EPOCH - Duration.ofSeconds(5)        // 1969-12-31T23:59:55Z
 Period.ofDays(5) * 3                         // P15D
 - Duration.ofHours(42)                       // PT-42H
 Duration.ofDays(30) / 10                     // P3D
-Instant.MAX > Instant.EPOCH                  // true 
+Instant.MAX > Instant.EPOCH                  // true
 ```
 
 <br/>
@@ -133,7 +133,7 @@ Duration.ofDays(1) |-| Duration.ofHours(2) // PT22H
 
 ## `intime-scalacheck`
 
-`intime-scalacheck` adds integrations with [Scalacheck](https://github.com/rickynils/scalacheck). Add it to your project 
+`intime-scalacheck` adds integrations with [Scalacheck](https://github.com/rickynils/scalacheck). Add it to your project
 with:
 
 ```scala
@@ -142,7 +142,7 @@ libraryDependencies += "au.id.tmm.intime" %% "intime-scalacheck" % "1.0.2" % "te
 
 #### `Arbitrary` instances
 
-`intime-scalacheck` provides instances of `Arbitrary` for all classes in `java.time`. These can be used to generate 
+`intime-scalacheck` provides instances of `Arbitrary` for all classes in `java.time`. These can be used to generate
 arbitrary instances for property-based testing.
 
 ```scala
@@ -158,8 +158,8 @@ forAll { localDate: LocalDate =>
 
 #### Generators for "sensible" datetime values
 
-`intime-scalacheck` provides generators for "sensible" values of `java.time` classes. The generated values are all 
-between 1900 and 2100, allowing property-based-tests that don't have to worry about peculiarities like 
+`intime-scalacheck` provides generators for "sensible" values of `java.time` classes. The generated values are all
+between 1900 and 2100, allowing property-based-tests that don't have to worry about peculiarities like
 [year zero](https://en.wikipedia.org/wiki/Year_zero) or durations that overflow.
 
 ```scala
@@ -218,8 +218,8 @@ libraryDependencies += "au.id.tmm.intime" %% "intime-argonaut" % "1.0.2"
 
 #### Standard encoders and decoders
 
-`intime-argonaut` defines `EncodeJson` and `DecodeJson` instances for all classes in the `java.time` package. They are 
-encoded and decoded to JSON strings according to the most obvious format (see 
+`intime-argonaut` defines `EncodeJson` and `DecodeJson` instances for all classes in the `java.time` package. They are
+encoded and decoded to JSON strings according to the most obvious format (see
 [`StandardCodecs`](argonaut/src/main/scala/au/id/tmm/intime/argonaut/StandardCodecs.scala).
 
 ```scala
@@ -234,7 +234,7 @@ jString("2019-07-14").as[LocalDate] // DecodeResult.ok(LocalDate.of(2019, 7, 14)
 
 #### Custom encoders and decoders
 
-`intime-argonaut` allows for the definition of custom `EncodeJson` and `DecodeJson` instances using instances of 
+`intime-argonaut` allows for the definition of custom `EncodeJson` and `DecodeJson` instances using instances of
 [`DateTimeFormatter`](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).
 
 ```scala
@@ -253,5 +253,5 @@ jString("07-14-2019").as[LocalDate] // DecodeResult.ok(LocalDate.of(2019, 7, 14)
 #### Known issues
 
 * In Java 8, the standard codec for `ZonedDateTime` will fail to decode when the zone is `GMT`. This is fixed in Java 11.
-* In Java 8, the standard codec for `Duration` will drop the negative sign for durations between 0 and -1 seconds. This 
+* In Java 8, the standard codec for `Duration` will drop the negative sign for durations between 0 and -1 seconds. This
   is fixed in Java 11.
