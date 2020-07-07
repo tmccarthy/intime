@@ -34,17 +34,6 @@ object ScalacSettings {
     "-Ypatmat-exhaust-depth", "80",     // Increase max exhaustion depth
   )
 
-  private val scalacOptions2_12 = Seq(
-    "-Xfuture",                         // Turn on future language features.
-    "-Xlint:by-name-right-associative", // By-name parameter of right associative operator.
-    "-Xlint:unsound-match",             // Pattern match may not be typesafe.
-    "-Ypartial-unification",            // Enable partial unification in type constructor inference
-    "-Ywarn-inaccessible",              // Warn about inaccessible types in method signatures.
-    "-Ywarn-infer-any",                 // Warn when a type argument is inferred to be `Any`.
-    "-Ywarn-nullary-override",          // Warn when non-nullary `def f()" overrides nullary `def f".
-    "-Ywarn-nullary-unit",              // Warn when nullary methods return Unit.
-  )
-
   private val scalacOptions2_13 = Seq(
   )
 
@@ -52,7 +41,6 @@ object ScalacSettings {
     Keys.scalacOptions :=
       scalacOptionsCommon ++ {
         CrossVersion.partialVersion(Keys.scalaVersion.value) match {
-          case Some((2, 12)) => scalacOptions2_12
           case Some((2, 13)) => scalacOptions2_13
           case _ => Seq.empty
         }

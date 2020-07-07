@@ -1,9 +1,9 @@
 package au.id.tmm.intime.scalacheck
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class ArbitraryInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
+class ArbitraryInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
   "arbitrary durations" should "be valid" in forAll(arbitraryDuration)(_ => succeed)
   "arbitrary instants" should "be valid" in forAll(arbitraryInstant)(_ => succeed)

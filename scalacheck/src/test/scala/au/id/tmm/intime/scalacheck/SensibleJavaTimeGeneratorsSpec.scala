@@ -3,10 +3,10 @@ package au.id.tmm.intime.scalacheck
 import java.time._
 
 import au.id.tmm.intime._
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class SensibleJavaTimeGeneratorsSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
+class SensibleJavaTimeGeneratorsSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
   "the generator for a sensible Instant" should "produce values between 1900 and 2100" in {
     forAll(genSensibleInstant) { instant =>

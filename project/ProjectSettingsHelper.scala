@@ -16,16 +16,17 @@ final case class ProjectSettingsHelper private (
   githubUserEmail: String = "ebh042@gmail.com",
   githubUserWebsite: String = "http://tmm.id.au",
 
-  primaryScalaVersion: String = "2.13.0", // Change these in the circleci file if you change them here
-  otherScalaVersions: List[String] = List("2.12.8"), // Change these in the circleci file if you change them here
+  primaryScalaVersion: String = "2.13.2", // Change these in the circleci file if you change them here
+  otherScalaVersions: List[String] = List("2.12.11"), // Change these in the circleci file if you change them here
 ) {
 
   def settingsForBuild = {
     List(
-      Keys.aggregate in releaseEarly := false, // Workaround for https://github.com/scalacenter/sbt-release-early/issues/30
+      releaseEarly / Keys.aggregate := false, // Workaround for https://github.com/scalacenter/sbt-release-early/issues/30
       Sonatype.SonatypeKeys.sonatypeProfileName := sonatypeProfile,
     ) ++ sbt.inThisBuild(
       List(
+        addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full), // TODO upgrade this
         organization := sonatypeProfile + "." + baseProjectName,
         publishMavenStyle := true,
         sonatypeProjectHosting := Some(GitHubHosting(githubUser, githubProjectName, githubUserFullName, githubUserEmail)),
@@ -45,19 +46,21 @@ final case class ProjectSettingsHelper private (
         pgpSecretRing := file("/tmp/secrets/secring.gpg"),
         releaseEarlyWith := SonatypePublisher,
         releaseEarlyEnableInstantReleases := false,
+
+        scalaVersion := primaryScalaVersion,
+        crossScalaVersions := Seq(primaryScalaVersion) ++ otherScalaVersions,
       )
     )
   }
 
   def settingsForRootProject = Seq(
-    skip in publish := true,
+    publish / skip := true,
     name := baseProjectName,
+    crossScalaVersions := Nil,
   )
 
   def settingsForSubprojectCalled(name: String) = Seq(
     Keys.name := s"$baseProjectName-$name",
-    scalaVersion := primaryScalaVersion,
-    crossScalaVersions := Seq(primaryScalaVersion) ++ otherScalaVersions,
     ScalacSettings.scalacSetting,
     publishConfiguration := publishConfiguration.value.withOverwrite(true),
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),

@@ -2,9 +2,9 @@ package au.id.tmm.intime.syntax
 
 import java.time.Duration
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class DurationSyntaxSpec extends FlatSpec {
+class DurationSyntaxSpec extends AnyFlatSpec {
 
   "a duration" can "be added to another" in {
     assert(Duration.ofDays(5) + Duration.ofHours(48) === Duration.ofDays(7))

@@ -2,9 +2,9 @@ package au.id.tmm.intime.orderings
 
 import java.time.{Month, Period, Year}
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class DayRangeSpec extends FlatSpec {
+class DayRangeSpec extends AnyFlatSpec {
 
   behavior of "the day range for a period of months"
 

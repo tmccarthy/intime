@@ -6,10 +6,10 @@ import argonaut.{DecodeJson, DecodeResult, EncodeJson}
 import au.id.tmm.intime.scalacheck._
 import com.github.ghik.silencer.silent
 import org.scalacheck.Arbitrary
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class StandardCodecsTest extends FlatSpec with ScalaCheckDrivenPropertyChecks {
+class StandardCodecsTest extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
   behavior of "The codec for Instant"
 

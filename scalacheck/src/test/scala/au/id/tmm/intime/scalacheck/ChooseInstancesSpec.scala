@@ -5,12 +5,12 @@ import java.time._
 import au.id.tmm.intime.orderings._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen.Choose
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import scala.reflect.ClassTag
 
-class ChooseInstancesSpec extends FlatSpec with ScalaCheckDrivenPropertyChecks {
+class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
   testChooseRange[Duration](chooseDuration)
   testChooseRange[Instant](chooseInstant)

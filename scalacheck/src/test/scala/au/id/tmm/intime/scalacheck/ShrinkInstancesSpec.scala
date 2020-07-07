@@ -3,9 +3,9 @@ package au.id.tmm.intime.scalacheck
 import java.time._
 
 import org.scalacheck.Shrink
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class ShrinkInstancesSpec extends FlatSpec {
+class ShrinkInstancesSpec extends AnyFlatSpec {
 
   behavior of "the shrink for Duration"
 

@@ -3,9 +3,9 @@ package au.id.tmm.intime.orderings
 import java.time.Month._
 import java.time.Period
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class PeriodPartialOrderingSpec extends FlatSpec {
+class PeriodPartialOrderingSpec extends AnyFlatSpec {
 
   behavior of "the partial ordering for period"
 
