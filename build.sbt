@@ -1,4 +1,4 @@
-val settingsHelper = ProjectSettingsHelper("au.id.tmm","intime")()
+val settingsHelper = ProjectSettingsHelper("au.id.tmm", "intime")()
 
 settingsHelper.settingsForBuild
 
@@ -13,7 +13,7 @@ lazy val root = project
     argonaut,
   )
 
-val catsVersion  = "2.2.0-M1"
+val catsVersion = "2.2.0-M1"
 
 lazy val core = project
   .in(file("core"))
@@ -33,7 +33,7 @@ lazy val scalaCheck = project
   .in(file("scalacheck"))
   .settings(settingsHelper.settingsForSubprojectCalled("scalacheck"))
   .settings(
-    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.3",
+    libraryDependencies += "org.scalacheck"    %% "scalacheck"      % "1.14.3",
     libraryDependencies += "org.scalatestplus" %% "scalacheck-1-14" % "3.2.0.1-M2" % Test,
   )
   .dependsOn(core)
@@ -42,7 +42,7 @@ lazy val argonaut = project
   .in(file("argonaut"))
   .settings(settingsHelper.settingsForSubprojectCalled("argonaut"))
   .settings(
-    libraryDependencies += "io.argonaut" %% "argonaut" % "6.2.3",
+    libraryDependencies += "io.argonaut"       %% "argonaut"        % "6.2.3",
     libraryDependencies += "org.scalatestplus" %% "scalacheck-1-14" % "3.2.0.1-M2" % Test,
   )
   .dependsOn(scalaCheck % "test->compile")

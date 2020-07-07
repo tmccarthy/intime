@@ -130,19 +130,20 @@ trait ChooseInstances {
     combine: (T1, T2) => O,
     t2Floor: T1 => T2,
     t2Ceil: T1 => T2,
-  ): Choose[O] = (minO, maxO) => {
-    val minT1 = extractT1(minO)
-    val minT2 = extractT1(maxO)
+  ): Choose[O] =
+    (minO, maxO) => {
+      val minT1 = extractT1(minO)
+      val minT2 = extractT1(maxO)
 
-    for {
-      t1 <- implicitly[Choose[T1]].choose(minT1, minT2)
+      for {
+        t1 <- implicitly[Choose[T1]].choose(minT1, minT2)
 
-      t2 <- implicitly[Choose[T2]].choose(
-        min = if (implicitly[Ordering[T1]].lteq(t1, minT1)) extractT2(minO) else t2Floor(t1),
-        max = if (implicitly[Ordering[T1]].gteq(t1, minT2)) extractT2(maxO) else t2Ceil(t1),
-      )
-    } yield combine(t1, t2)
-  }
+        t2 <- implicitly[Choose[T2]].choose(
+          min = if (implicitly[Ordering[T1]].lteq(t1, minT1)) extractT2(minO) else t2Floor(t1),
+          max = if (implicitly[Ordering[T1]].gteq(t1, minT2)) extractT2(maxO) else t2Ceil(t1),
+        )
+      } yield combine(t1, t2)
+    }
 
   private def makeChronoFieldRangeChoose[A <: TemporalAccessor](
     fields: ChronoField*,
@@ -158,38 +159,39 @@ trait ChooseInstances {
         generatorForPreviousFields: Gen[List[Long]] = Gen.const(Nil),
         fieldsAlreadyGenerated: List[ChronoField] = Nil,
         fieldsRemaining: List[ChronoField] = fields.toList,
-      ): Gen[List[Long]] = fieldsRemaining match {
-        case Nil => generatorForPreviousFields
-        case thisField :: fieldsRemaining =>
-          generatorForPreviousFields.flatMap { valuesForPreviousFields =>
-            val valuesWithHandledFields: List[(Long, ChronoField)] =
-              valuesForPreviousFields zip fieldsAlreadyGenerated
+      ): Gen[List[Long]] =
+        fieldsRemaining match {
+          case Nil => generatorForPreviousFields
+          case thisField :: fieldsRemaining =>
+            generatorForPreviousFields.flatMap { valuesForPreviousFields =>
+              val valuesWithHandledFields: List[(Long, ChronoField)] =
+                valuesForPreviousFields zip fieldsAlreadyGenerated
 
-            val isAtMinBoundary = valuesWithHandledFields.forall {
-              case (generatedValue, field) =>
-                generatedValue <= field.getFrom(min)
+              val isAtMinBoundary = valuesWithHandledFields.forall {
+                case (generatedValue, field) =>
+                  generatedValue <= field.getFrom(min)
+              }
+
+              val isAtMaxBoundary = valuesWithHandledFields.forall {
+                case (generatedValue, field) =>
+                  generatedValue >= field.getFrom(max)
+              }
+
+              val generatorForThisFieldValue = Gen.choose[Long](
+                min = if (isAtMinBoundary) thisField.getFrom(min) else thisField.range().getMinimum,
+                max = if (isAtMaxBoundary) thisField.getFrom(max) else thisField.range().getMaximum,
+              )
+
+              generateFieldValues(
+                min,
+                max,
+                generatorForThisFieldValue.map(valuesForPreviousFields :+ _),
+                fieldsAlreadyGenerated :+ thisField,
+                fieldsRemaining,
+              )
             }
 
-            val isAtMaxBoundary = valuesWithHandledFields.forall {
-              case (generatedValue, field) =>
-                generatedValue >= field.getFrom(max)
-            }
-
-            val generatorForThisFieldValue = Gen.choose[Long](
-              min = if (isAtMinBoundary) thisField.getFrom(min) else thisField.range().getMinimum,
-              max = if (isAtMaxBoundary) thisField.getFrom(max) else thisField.range().getMaximum,
-            )
-
-            generateFieldValues(
-              min,
-              max,
-              generatorForThisFieldValue.map(valuesForPreviousFields :+ _),
-              fieldsAlreadyGenerated :+ thisField,
-              fieldsRemaining,
-            )
-          }
-
-      }
+        }
     }
 
 }

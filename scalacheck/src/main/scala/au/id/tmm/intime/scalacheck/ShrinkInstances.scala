@@ -75,11 +75,12 @@ trait ShrinkInstances {
     for {
       month <- Range.inclusive(monthDay.getMonthValue, 1, -1).toStream.map(Month.of)
 
-      maxDaysForThisMonth = if (month == monthDay.getMonth) {
-        monthDay.getDayOfMonth - 1
-      } else {
-        month.maxLength()
-      }
+      maxDaysForThisMonth =
+        if (month == monthDay.getMonth) {
+          monthDay.getDayOfMonth - 1
+        } else {
+          month.maxLength()
+        }
 
       day <- Range.inclusive(maxDaysForThisMonth, 1, -1).toStream
     } yield MonthDay.of(month, day)
