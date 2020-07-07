@@ -1,4 +1,4 @@
-package au.id.tmm.intime.orderings
+package au.id.tmm.intime.std.instances
 
 import java.time.{Month, Period, Year}
 

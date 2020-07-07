@@ -1,6 +1,8 @@
-package au.id.tmm.intime.syntax
+package au.id.tmm.intime.std.syntax
 
 import java.time.Duration
+
+import au.id.tmm.intime.std.syntax.duration._
 
 import org.scalatest.flatspec.AnyFlatSpec
 

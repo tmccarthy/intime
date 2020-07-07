@@ -4,7 +4,7 @@ import java.time._
 import java.time.temporal.ChronoField._
 import java.time.temporal.{ChronoField, TemporalAccessor}
 
-import au.id.tmm.intime._
+import au.id.tmm.intime.std.implicits.all._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 

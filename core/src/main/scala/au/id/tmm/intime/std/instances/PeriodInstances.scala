@@ -1,18 +1,24 @@
-package au.id.tmm.intime.orderings
+package au.id.tmm.intime.std.instances
 
 import java.time.Period
 
-/**
-  * A `PartialOrdering` for `Period`, which allows comparison between periods that are unambiguously
-  * ordered.
-  *
-  * Because the number of days per month (or year) varies, it is impossible to define a total
-  * ordering for `Period`. A period of 30 days may or may not be longer than one of one month,
-  * depending on they day the period starts. Some periods, though, can be compared. Two months are
-  * longer than one month, 32 days will always be longer than one month, etc. This partial ordering
-  * captures these unambiguous cases while not providing orderings in ambiguous ones.
-  */
-object PeriodPartialOrdering extends PartialOrdering[Period] {
+trait PeriodInstances {
+
+  /**
+    * A `PartialOrdering` for `Period`, which allows comparison between periods that are unambiguously
+    * ordered.
+    *
+    * Because the number of days per month (or year) varies, it is impossible to define a total
+    * ordering for `Period`. A period of 30 days may or may not be longer than one of one month,
+    * depending on they day the period starts. Some periods, though, can be compared. Two months are
+    * longer than one month, 32 days will always be longer than one month, etc. This partial ordering
+    * captures these unambiguous cases while not providing orderings in ambiguous ones.
+    */
+  implicit val intimePartialOrderingForJavaTimePeriod: PartialOrdering[Period] = PeriodPartialOrdering
+
+}
+
+private object PeriodPartialOrdering extends PartialOrdering[Period] {
 
   override def tryCompare(x: Period, y: Period): Option[Int] = {
     val xNormalised = x.normalized()
@@ -45,14 +51,14 @@ object PeriodPartialOrdering extends PartialOrdering[Period] {
 
 }
 
-private[intime] final case class DayRange(min: Long, max: Long) {
+private[instances] final case class DayRange(min: Long, max: Long) {
   def +(that: DayRange): DayRange = DayRange(this.min + that.min, this.max + that.max)
 
   def -(that: DayRange): DayRange = DayRange(this.min - that.min, this.max - that.max)
   def *(scalar: Int): DayRange    = DayRange(this.min * scalar, this.max * scalar)
 }
 
-private[intime] object DayRange {
+private[instances] object DayRange {
   def apply(min: Long, max: Long): DayRange = new DayRange(min min max, min max max)
 
   def fromPeriod(period: Period): DayRange =

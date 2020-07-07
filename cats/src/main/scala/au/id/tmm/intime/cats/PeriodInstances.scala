@@ -2,7 +2,7 @@ package au.id.tmm.intime.cats
 
 import java.time.Period
 
-import au.id.tmm.intime.orderings.PeriodPartialOrdering
+import au.id.tmm.intime.std.instances.period._
 import cats.kernel.{CommutativeGroup, PartialOrder}
 import cats.{Hash, Show}
 
@@ -14,9 +14,9 @@ trait PeriodInstances {
 
 class PeriodHash extends Hash[Period] with PartialOrder[Period] {
   override def hash(x: Period): Int               = x.hashCode()
-  override def eqv(x: Period, y: Period): Boolean = PeriodPartialOrdering.equiv(x, y)
+  override def eqv(x: Period, y: Period): Boolean = intimePartialOrderingForJavaTimePeriod.equiv(x, y)
   override def partialCompare(x: Period, y: Period): Double =
-    PeriodPartialOrdering.tryCompare(x, y) match {
+    intimePartialOrderingForJavaTimePeriod.tryCompare(x, y) match {
       case Some(value) => value.toDouble
       case None        => Double.NaN
     }

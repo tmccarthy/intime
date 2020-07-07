@@ -2,7 +2,7 @@ package au.id.tmm.intime.scalacheck
 
 import java.time._
 
-import au.id.tmm.intime.orderings._
+import au.id.tmm.intime.std.instances.all._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen.Choose
 import org.scalatest.flatspec.AnyFlatSpec
