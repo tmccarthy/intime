@@ -13,7 +13,7 @@ classes and common Scala libraries.
 Add the following to your `build.sbt` file:
 
 ```scala
-val intimeVersion = "1.1.0"
+val intimeVersion = "2.0.0"
 
 libraryDependencies += "au.id.tmm.intime" %% "intime-core"       % intimeVersion
 libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion        // Cats integration
@@ -39,7 +39,7 @@ defined. This includes the most common classes like `Instant` and `LocalDate`.
 
 ```scala
 import java.time._
-import au.id.tmm.intime._
+import au.id.tmm.intime.std.implicits._
 
 val dates: List[LocalDate] = List(
   LocalDate.of(2003, 3, 23),
@@ -62,7 +62,7 @@ each, handling those cases where an ordering can be computed.
 
 ```scala
 import java.time._
-import au.id.tmm.intime._
+import au.id.tmm.intime.std.implicits._
 
 LocalDate.of(1999, 6, 20) + Period.ofDays(3) // 1999-06-23
 Instant.EPOCH - Duration.ofSeconds(5)        // 1969-12-31T23:59:55Z
@@ -91,7 +91,7 @@ All instances are tested with [discipline](https://github.com/typelevel/discipli
 
 ```scala
 import java.time._
-import au.id.tmm.intime.cats._
+import au.id.tmm.intime.cats.implicits._
 
 import cats.syntax.show._
 import cats.syntax.eq._
@@ -106,7 +106,7 @@ Instant.EPOCH === Instant.EPOCH // true
 
 ```scala
 import java.time._
-import au.id.tmm.intime.cats._
+import au.id.tmm.intime.cats.implicits._
 
 import cats.syntax.partialOrder._
 
@@ -120,7 +120,7 @@ Period.ofDays(30) partialCompare Period.ofMonths(1)   // NaN
 
 ```scala
 import java.time._
-import au.id.tmm.intime.cats._
+import au.id.tmm.intime.cats.implicits._
 
 import cats.syntax.group._
 
