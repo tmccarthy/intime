@@ -112,31 +112,23 @@ private[instances] object DayRange {
     }
 
   private def numLeapDaysIn(numYears: Int): DayRange =
-    DayRange(
-      min = minNumLeapDaysIn(numYears),
-      max = maxNumLeapDaysIn(numYears),
-    )
-
-  private def minNumLeapDaysIn(numYears: Int): Int =
     numYears match {
-      case 0            => 0
-      case n if n < 8   => 0
-      case n if n < 104 => (n - 4) / 4
-      case n if n < 204 => (n - 4) / 4 - 1
-      case n if n < 304 => (n - 4) / 4 - 2
-      case n if n < 400 => (n - 4) / 4 - 2
-      case n            => (97 * (n / 400)) + minNumLeapDaysIn(n % 400)
-    }
-
-  private def maxNumLeapDaysIn(numYears: Int): Int =
-    numYears match {
-      case 0            => 0
-      case n if n < 4   => 1
-      case n if n < 197 => (n - 1) / 4 + 1
-      case n if n < 297 => (n - 1) / 4
-      case n if n < 397 => (n - 1) / 4 - 1
-      case n if n < 400 => 97
-      case n            => (97 * (n / 400)) + maxNumLeapDaysIn(n % 400)
+      case 0             => DayRange(0, 0)
+      case n if n >= 400 => (DayRange(97, 97) * (n / 400)) + numLeapDaysIn(n % 400)
+      case n =>
+        DayRange(
+          min = (n - 4) / 4 + (n match {
+            case n if n < 104 => +0
+            case n if n < 204 => -1
+            case n if n < 400 => -2
+          }),
+          max = (n - 1) / 4 + (n match {
+            case n if n < 197 => +1
+            case n if n < 297 => +0
+            case n if n < 397 => -1
+            case n if n < 400 => -2
+          }),
+        )
     }
 
   implicit val partialOrdering: PartialOrdering[DayRange] = new PartialOrdering[DayRange] {

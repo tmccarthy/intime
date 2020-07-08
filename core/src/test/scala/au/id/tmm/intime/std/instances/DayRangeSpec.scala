@@ -2,9 +2,10 @@ package au.id.tmm.intime.std.instances
 
 import java.time.{Month, Period, Year}
 
+import org.scalatest.ParallelTestExecution
 import org.scalatest.flatspec.AnyFlatSpec
 
-class DayRangeSpec extends AnyFlatSpec {
+class DayRangeSpec extends AnyFlatSpec with ParallelTestExecution {
 
   behavior of "the day range for a period of months"
 
@@ -32,27 +33,26 @@ class DayRangeSpec extends AnyFlatSpec {
 
   behavior of "the day range for a period of years"
 
-  it should "be 0 days for a period of 0 years" in {
-    assert(DayRange.fromPeriod(Period.ofYears(0)) === DayRange(0, 0))
-  }
+  private def windowsOfNYears(n: Int): Iterator[IndexedSeq[Year]] =
+    n match {
+      case 0 => Iterator.single(Vector.empty[Year])
+      case _ => (-1 to 2020).map(Year.of).sliding(n)
+    }
 
-  it should "match up with manually computed values" in {
-    val years = (-1 to 2020).map(Year.of)
+  (0 to 900).foreach { numYears =>
+    it should s"match up with the manually computed value for a period of $numYears years" in {
+      val manuallyComputedDayRange: DayRange = DayRange(
+        min = windowsOfNYears(numYears).map(_.map(_.length).sum).min,
+        max = windowsOfNYears(numYears).map(_.map(_.length).sum).max,
+      )
 
-    (1 to 420).foreach { numYears =>
-      val windows = years.sliding(numYears).toVector
+      val dayRangeWithNoLeapYears: DayRange = DayRange(365 * numYears, 365 * numYears)
 
-      val minNumDays = windows.map(_.map(_.length).sum).min
-      val maxNumDays = windows.map(_.map(_.length).sum).max
+      val manuallyComputedNumLeapDays: DayRange = manuallyComputedDayRange - dayRangeWithNoLeapYears
 
-      def numLeapDaysGiven(numDays: DayRange): DayRange = numDays - DayRange(365 * numYears, 365 * numYears)
+      val actualNumLeapDays: DayRange = DayRange.fromPeriod(Period.ofYears(numYears)) - dayRangeWithNoLeapYears
 
-      val expectedNumLeapYears = numLeapDaysGiven(DayRange(minNumDays, maxNumDays))
-
-      val actualNumLeapYears = numLeapDaysGiven(DayRange.fromPeriod(Period.ofYears(numYears)))
-
-      assert(actualNumLeapYears.min === expectedNumLeapYears.min)
-      assert(actualNumLeapYears.max === expectedNumLeapYears.max)
+      assert(actualNumLeapDays === manuallyComputedNumLeapDays)
     }
   }
 
