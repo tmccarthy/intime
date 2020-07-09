@@ -27,6 +27,7 @@ final case class ProjectSettingsHelper private (
     ) ++ sbt.inThisBuild(
       List(
         addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.0" cross CrossVersion.full), // TODO upgrade this
+        addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
         organization := sonatypeProfile + "." + baseProjectName,
         publishMavenStyle := true,
         sonatypeProjectHosting := Some(GitHubHosting(githubUser, githubProjectName, githubUserFullName, githubUserEmail)),
