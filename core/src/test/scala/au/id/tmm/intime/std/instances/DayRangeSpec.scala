@@ -4,6 +4,7 @@ import java.nio.file.{Files, Path}
 import java.time.{LocalDate, Month, Period}
 
 import au.id.tmm.intime.std.syntax.localDate._
+import au.id.tmm.intime.std.syntax.period._
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.instances.long.catsKernelStdOrderForLong
 import cats.kernel.Order
@@ -15,7 +16,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 import scala.collection.JavaConverters.asJavaIterableConverter
-import scala.collection.immutable.ArraySeq
+import scala.collection.immutable.Vector
 import scala.io.Source
 
 class DayRangeSpec extends AnyFlatSpec with ParallelTestExecution with TableDrivenPropertyChecks {
@@ -41,7 +42,7 @@ class DayRangeSpec extends AnyFlatSpec with ParallelTestExecution with TableDriv
   */
 object ManuallyComputedPeriodDurations extends IOApp {
 
-  private val longestPeriodToTestInYears: Int = 2000
+  private val longestPeriodToTestInYears: Int = 1000
 
   private final case class DateRange(start: LocalDate, end: LocalDate) {
     val durationInDays: Long = end.toEpochDay - start.toEpochDay
@@ -55,8 +56,19 @@ object ManuallyComputedPeriodDurations extends IOApp {
   )
 
   private object ResourceRow {
+    def headerRow: String =
+      Vector(
+        "period",
+        "min_length_days",
+        "max_length_days",
+        "min_length_example_start",
+        "min_length_example_end",
+        "max_length_example_start",
+        "max_length_example_end",
+      ).mkString("\t")
+
     def toRaw(resourceRow: ResourceRow): String =
-      ArraySeq(
+      Vector(
         resourceRow.period.toString,
         resourceRow.dayRange.min.toString,
         resourceRow.dayRange.max.toString,
@@ -67,8 +79,8 @@ object ManuallyComputedPeriodDurations extends IOApp {
       ).mkString("\t")
 
     def fromRaw(row: String): ResourceRow =
-      ArraySeq.unsafeWrapArray(row.split('\t')) match {
-        case ArraySeq(
+      row.split('\t').toVector match {
+        case Vector(
               period,
               dayRangeMin,
               dayRangeMax,
@@ -99,6 +111,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
     Source
       .fromInputStream(getClass.getResourceAsStream("manuallyComputedPeriodDurations.tsv"), "UTF-8")
       .getLines()
+      .drop(1)
       .map(ResourceRow.fromRaw)
       .map(r => r.period -> r.dayRange)
 
@@ -143,12 +156,13 @@ object ManuallyComputedPeriodDurations extends IOApp {
       }
       .parJoinUnbounded
       .compile
-      .to(ArraySeq.untagged)
+      .to(Vector)
       .map { resourceRows =>
-        val lines: ArraySeq[String] =
+        val lines: Vector[String] =
           resourceRows
             .sortBy(r => (r.period.getYears, r.period.getMonths))
             .map(ResourceRow.toRaw)
+            .+:(ResourceRow.headerRow)
 
         Files.write(path, lines.asJava)
       }
@@ -158,7 +172,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
 
   private val consideredRange: DateRange = DateRange(
     start = LocalDate.of(1, Month.JANUARY, 1),
-    end = LocalDate.of(1, Month.JANUARY, 1) + Period.ofYears(longestPeriodToTestInYears) + Period.ofYears(20),
+    end = LocalDate.of(1, Month.JANUARY, 1) + (Period.ofYears(longestPeriodToTestInYears) * 4),
   )
 
   private def computeMinMaxDateRanges(period: Period): IO[(Period, (DateRange, DateRange))] =
