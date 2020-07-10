@@ -1,6 +1,6 @@
 package au.id.tmm.intime.std.instances
 
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, Paths}
 import java.time.{LocalDate, Month, Period}
 
 import au.id.tmm.intime.std.syntax.localDate._
@@ -118,7 +118,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
     for {
       fsPath <- IO(
-        Path.of("core/src/test/resources/au/id/tmm/intime/std/instances/manuallyComputedPeriodDurations.tsv"),
+        Paths.get("core/src/test/resources/au/id/tmm/intime/std/instances/manuallyComputedPeriodDurations.tsv"),
       )
       _ <- write(fsPath)
     } yield ExitCode.Success
