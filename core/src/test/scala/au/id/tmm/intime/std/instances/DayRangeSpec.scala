@@ -118,7 +118,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
     for {
       fsPath <- IO(
-        Path.of("core/src/test/resources/au/id/tmm/intime/std/instances", "manuallyComputedPeriodDurations.tsv"),
+        Path.of("core/src/test/resources/au/id/tmm/intime/std/instances/manuallyComputedPeriodDurations.tsv"),
       )
       _ <- write(fsPath)
     } yield ExitCode.Success
