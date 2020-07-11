@@ -1,4 +1,4 @@
-package au.id.tmm.intime.std.instances
+package au.id.tmm.intime
 
 import java.nio.file.{Files, Path, Paths}
 import java.time.{LocalDate, Month, Period}
@@ -19,9 +19,7 @@ import scala.collection.JavaConverters.asJavaIterableConverter
 import scala.collection.immutable.Vector
 import scala.io.Source
 
-class DayRangeSpec extends AnyFlatSpec with ParallelTestExecution with TableDrivenPropertyChecks {
-
-  behavior of "day range computation"
+class PeriodLengthSpec extends AnyFlatSpec with ParallelTestExecution with TableDrivenPropertyChecks {
 
   private def table =
     Table(
@@ -29,16 +27,16 @@ class DayRangeSpec extends AnyFlatSpec with ParallelTestExecution with TableDriv
       ManuallyComputedPeriodDurations.read().toSeq: _*,
     )
 
-  "day range computation" should "match with manually computed values" in forEvery(table) {
-    (period, manuallyComputedDayRange) =>
-      assert(DayRange.fromPeriod(period) === manuallyComputedDayRange)
+  "period length computation" should "match with manually computed values" in forEvery(table) {
+    (period, manuallyComputedPeriodLength) =>
+      assert(PeriodLength.of(period) === manuallyComputedPeriodLength)
   }
 
 }
 
 /**
   * Manually computes the duration of a set of periods, and writes the expected values to the resource at
-  * `au.id.tmm.intime.std.instances.manuallyComputedPeriodDurations.tsv`
+  * `au.id.tmm.intime.manuallyComputedPeriodDurations.tsv`
   */
 object ManuallyComputedPeriodDurations extends IOApp {
 
@@ -50,7 +48,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
 
   private final case class ResourceRow(
     period: Period,
-    dayRange: DayRange,
+    periodLength: PeriodLength,
     exampleMinDateRange: DateRange,
     exampleMaxDateRange: DateRange,
   )
@@ -70,8 +68,8 @@ object ManuallyComputedPeriodDurations extends IOApp {
     def toRaw(resourceRow: ResourceRow): String =
       Vector(
         resourceRow.period.toString,
-        resourceRow.dayRange.min.toString,
-        resourceRow.dayRange.max.toString,
+        resourceRow.periodLength.minLengthInDays.toString,
+        resourceRow.periodLength.maxLengthInDays.toString,
         resourceRow.exampleMinDateRange.start.toString,
         resourceRow.exampleMinDateRange.end.toString,
         resourceRow.exampleMaxDateRange.start.toString,
@@ -82,8 +80,8 @@ object ManuallyComputedPeriodDurations extends IOApp {
       row.split('\t').toVector match {
         case Vector(
               period,
-              dayRangeMin,
-              dayRangeMax,
+              periodLengthMin,
+              periodLengthMax,
               exampleMinDateRangeStart,
               exampleMinDateRangeEnd,
               exampleMaxDateRangeStart,
@@ -91,9 +89,9 @@ object ManuallyComputedPeriodDurations extends IOApp {
             ) =>
           ResourceRow(
             Period.parse(period),
-            DayRange(
-              dayRangeMin.toLong,
-              dayRangeMax.toLong,
+            PeriodLength(
+              periodLengthMin.toLong,
+              periodLengthMax.toLong,
             ),
             DateRange(
               LocalDate.parse(exampleMinDateRangeStart),
@@ -107,18 +105,18 @@ object ManuallyComputedPeriodDurations extends IOApp {
       }
   }
 
-  def read(): Iterator[(Period, DayRange)] =
+  def read(): Iterator[(Period, PeriodLength)] =
     Source
       .fromInputStream(getClass.getResourceAsStream("manuallyComputedPeriodDurations.tsv"), "UTF-8")
       .getLines()
       .drop(1)
       .map(ResourceRow.fromRaw)
-      .map(r => r.period -> r.dayRange)
+      .map(r => r.period -> r.periodLength)
 
   override def run(args: List[String]): IO[ExitCode] =
     for {
       fsPath <- IO(
-        Paths.get("core/src/test/resources/au/id/tmm/intime/std/instances/manuallyComputedPeriodDurations.tsv"),
+        Paths.get("core/src/test/resources/au/id/tmm/intime/manuallyComputedPeriodDurations.tsv"),
       )
       _ <- write(fsPath)
     } yield ExitCode.Success
@@ -145,7 +143,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
             case (period, (minLengthDateRange, maxLengthDateRange)) =>
               ResourceRow(
                 period,
-                DayRange(
+                PeriodLength(
                   minLengthDateRange.durationInDays,
                   maxLengthDateRange.durationInDays,
                 ),
