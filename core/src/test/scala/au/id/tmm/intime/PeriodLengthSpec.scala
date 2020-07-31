@@ -40,7 +40,7 @@ class PeriodLengthSpec extends AnyFlatSpec with ParallelTestExecution with Table
   */
 object ManuallyComputedPeriodDurations extends IOApp {
 
-  private val longestPeriodToTestInYears: Int = 1000
+  private val longestPeriodToTest: Period = Period.ofYears(800)
 
   private final case class DateRange(start: LocalDate, end: LocalDate) {
     val durationInDays: Long = end.toEpochDay - start.toEpochDay
@@ -165,12 +165,15 @@ object ManuallyComputedPeriodDurations extends IOApp {
         Files.write(path, lines.asJava)
       }
 
-  private val periodsToVerify: Stream[Pure, Period] =
-    Stream.range(0, 12).map(Period.ofMonths) ++ Stream.range(1, longestPeriodToTestInYears).map(Period.ofYears)
+  private val periodsToVerify: Stream[Pure, Period] = {
+    Stream.iterate(Period.ZERO)(p => p.plusMonths(1))
+      .map(_.normalized)
+      .takeWhile(p => p <= longestPeriodToTest)
+  }
 
   private val consideredRange: DateRange = DateRange(
     start = LocalDate.of(1, Month.JANUARY, 1),
-    end = LocalDate.of(1, Month.JANUARY, 1) + (Period.ofYears(longestPeriodToTestInYears) * 4),
+    end = LocalDate.of(1, Month.JANUARY, 1) + (longestPeriodToTest * 4),
   )
 
   private def computeMinMaxDateRanges(period: Period): IO[(Period, (DateRange, DateRange))] =
