@@ -16,7 +16,8 @@ final case class PeriodLength(
   minLengthInDays: Long,
   maxLengthInDays: Long,
 ) {
-  def +(that: PeriodLength): PeriodLength =
+
+  private def +(that: PeriodLength): PeriodLength =
     PeriodLength(
       minLengthInDays = this.minLengthInDays + that.minLengthInDays,
       maxLengthInDays = this.maxLengthInDays + that.maxLengthInDays,
@@ -48,12 +49,23 @@ object PeriodLength {
     */
   def always(lengthInDays: Long): PeriodLength = new PeriodLength(lengthInDays, lengthInDays)
 
+  // TODO this is broken for negative
   def of(period: Period): PeriodLength = {
     val normalisedPeriod: Period = period.normalized
 
-    PeriodLength(normalisedPeriod.getDays, normalisedPeriod.getDays) +
+    val periodLength = PeriodLength(normalisedPeriod.getDays, normalisedPeriod.getDays) +
       lengthOfNumMonths(normalisedPeriod.getMonths) +
       lengthOfNumYears(normalisedPeriod.getYears)
+
+    val requiresAdjustment =
+      (normalisedPeriod.getMonths > 0) &&
+        ((normalisedPeriod.getYears % 100 > 4) || (normalisedPeriod.getYears % 400 == 303)) &&
+        ((normalisedPeriod.getYears + 1) % 4 == 0)
+
+    if (requiresAdjustment)
+      periodLength.copy(minLengthInDays = periodLength.minLengthInDays + 1)
+    else
+      periodLength
   }
 
   private def lengthOfNumMonths(numMonths: Int): PeriodLength =
