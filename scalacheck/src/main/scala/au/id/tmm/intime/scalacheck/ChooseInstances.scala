@@ -80,22 +80,22 @@ trait ChooseInstances {
   implicit def chooseZonedDateTime: Choose[ZonedDateTime] =
     (min, max) =>
       for {
-        zone <- arbitraryZoneId.arbitrary
-        localDateTime <- Gen.choose[LocalDateTime](
-          min.withZoneSameInstant(zone).toLocalDateTime,
-          max.withZoneSameInstant(zone).toLocalDateTime,
+        instant <- Gen.choose[Instant](
+          min.toInstant,
+          max.toInstant,
         )
-      } yield localDateTime.atZone(zone)
+        zone <- arbitraryZoneId.arbitrary
+      } yield instant.atZone(zone)
 
   implicit def chooseOffsetDateTime: Choose[OffsetDateTime] =
     (min, max) =>
       for {
-        offset <- arbitraryZoneOffset.arbitrary
-        localDateTime <- Gen.choose[LocalDateTime](
-          min.withOffsetSameInstant(offset).toLocalDateTime,
-          max.withOffsetSameInstant(offset).toLocalDateTime,
+        instant <- Gen.choose[Instant](
+          min.toInstant,
+          max.toInstant,
         )
-      } yield localDateTime.atOffset(offset)
+        offset <- arbitraryZoneOffset.arbitrary
+      } yield instant.atOffset(offset)
 
   implicit def chooseOffsetTime: Choose[OffsetTime] =
     (min, max) => {

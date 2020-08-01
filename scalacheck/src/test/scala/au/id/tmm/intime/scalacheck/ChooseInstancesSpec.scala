@@ -56,4 +56,30 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     }
   }
 
+  "the choose for ZonedDateTime" should "function correctly when values are close to one another" in {
+    val min = Instant.EPOCH.atZone(ZoneOffset.UTC)
+    val max = min.plusMinutes(1)
+
+    forAll(chooseZonedDateTime.choose(min, max)) { genValue: ZonedDateTime =>
+      assert(Ordering[ZonedDateTime].lteq(min, genValue) && Ordering[ZonedDateTime].lteq(genValue, max))
+    }
+  }
+
+  "the choose for OffsetDateTime" should "function correctly when values are close to one another" in {
+    val min = Instant.EPOCH.atOffset(ZoneOffset.UTC)
+    val max = min.plusMinutes(1)
+
+    forAll(chooseOffsetDateTime.choose(min, max)) { genValue: OffsetDateTime =>
+      assert(Ordering[OffsetDateTime].lteq(min, genValue) && Ordering[OffsetDateTime].lteq(genValue, max))
+    }
+  }
+
+  "the choose for OffsetTime" should "function correctly when values are close to one another" in {
+    val min = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC)
+    val max = min.plusMinutes(1)
+
+    forAll(chooseOffsetTime.choose(min, max)) { genValue: OffsetTime =>
+      assert(Ordering[OffsetTime].lteq(min, genValue) && Ordering[OffsetTime].lteq(genValue, max))
+    }
+  }
 }
