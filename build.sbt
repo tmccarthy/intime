@@ -13,7 +13,7 @@ lazy val root = project
     argonaut,
   )
 
-val catsVersion          = "2.2.0-M1"
+val catsVersion          = "2.2.0-M3"
 val catsEffectVersion    = "2.1.3"
 val fs2Version           = "2.4.1"
 val scalaCheckVersion    = "1.14.3"
@@ -23,8 +23,8 @@ lazy val core = project
   .in(file("core"))
   .settings(settingsHelper.settingsForSubprojectCalled("core"))
   .settings(
-    libraryDependencies += "co.fs2"        %% "fs2-core"    % fs2Version,
-    libraryDependencies += "org.typelevel" %% "cats-effect" % catsEffectVersion,
+    libraryDependencies += "org.typelevel" %% "cats-effect" % catsEffectVersion % Test,
+    libraryDependencies += "org.typelevel" %% "cats-core"   % catsVersion       % Test,
   )
 
 lazy val cats = project
