@@ -13,7 +13,7 @@ classes and common Scala libraries.
 Add the following to your `build.sbt` file:
 
 ```scala
-val intimeVersion = "2.0.0"
+val intimeVersion = "2.2.0"
 
 libraryDependencies += "au.id.tmm.intime" %% "intime-core"       % intimeVersion
 libraryDependencies += "au.id.tmm.intime" %% "intime-cats"       % intimeVersion        // Cats integration
