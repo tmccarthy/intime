@@ -56,3 +56,8 @@ lazy val argonaut = project
   .dependsOn(scalaCheck % "test->compile")
 
 addCommandAlias("check", ";+test;scalafmtCheckAll")
+
+TaskKey[Unit]("regenerateManuallyComputedPeriodLengths") :=
+  (core / Test / runMain)
+    .toTask(" au.id.tmm.intime.ManuallyComputedPeriodDurations")
+    .value

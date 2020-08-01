@@ -2,6 +2,8 @@ package au.id.tmm.intime
 
 import java.time.Period
 
+import scala.math.{abs, signum}
+
 /**
   * Represents the range of possible lengths of a `java.time.Period` expressed as a range of days.
   *
@@ -28,6 +30,9 @@ final case class PeriodLength(
       minLengthInDays = this.minLengthInDays * scalar,
       maxLengthInDays = this.maxLengthInDays * scalar,
     )
+
+  def variation: Long = abs(maxLengthInDays - minLengthInDays)
+
 }
 
 object PeriodLength {
@@ -58,12 +63,34 @@ object PeriodLength {
       lengthOfNumYears(normalisedPeriod.getYears)
 
     val requiresAdjustment =
-      (normalisedPeriod.getMonths > 0) &&
-        ((normalisedPeriod.getYears % 100 > 4) || (normalisedPeriod.getYears % 400 == 303)) &&
-        ((normalisedPeriod.getYears + 1) % 4 == 0)
+      (normalisedPeriod.getMonths != 0) &&
+        ((abs(normalisedPeriod.getYears)      % 100 > 4) || (abs(normalisedPeriod.getYears) % 400 == 303)) &&
+        ((abs(normalisedPeriod.getYears) + 1) % 4 == 0)
 
     if (requiresAdjustment)
-      periodLength.copy(minLengthInDays = periodLength.minLengthInDays + 1)
+      (signum(period.getYears), signum(period.getMonths)) match {
+        case (-1, -1) =>
+          PeriodLength(
+            minLengthInDays = periodLength.minLengthInDays,
+            maxLengthInDays = periodLength.maxLengthInDays - 1,
+          )
+        case (-1, 1) =>
+          PeriodLength(
+            minLengthInDays = periodLength.minLengthInDays,
+            maxLengthInDays = periodLength.maxLengthInDays - 1,
+          )
+        case (1, -1) =>
+          PeriodLength(
+            minLengthInDays = periodLength.minLengthInDays + 1,
+            maxLengthInDays = periodLength.maxLengthInDays,
+          )
+        case (1, 1) =>
+          PeriodLength(
+            minLengthInDays = periodLength.minLengthInDays + 1,
+            maxLengthInDays = periodLength.maxLengthInDays,
+          )
+        case _ => throw new AssertionError()
+      }
     else
       periodLength
   }

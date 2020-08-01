@@ -41,6 +41,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
         "period",
         "min_length_days",
         "max_length_days",
+        "length_variation",
         "min_length_example_start",
         "min_length_example_end",
         "max_length_example_start",
@@ -52,6 +53,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
         resourceRow.period.toString,
         resourceRow.periodLength.minLengthInDays.toString,
         resourceRow.periodLength.maxLengthInDays.toString,
+        resourceRow.periodLength.variation.toString,
         resourceRow.exampleMinDateRange.start.toString,
         resourceRow.exampleMinDateRange.end.toString,
         resourceRow.exampleMaxDateRange.start.toString,
@@ -64,6 +66,7 @@ object ManuallyComputedPeriodDurations extends IOApp {
               period,
               periodLengthMin,
               periodLengthMax,
+              periodVariation,
               exampleMinDateRangeStart,
               exampleMinDateRangeEnd,
               exampleMaxDateRangeStart,
@@ -168,9 +171,9 @@ object ManuallyComputedPeriodDurations extends IOApp {
           Random.nextInt(800) - 400,
         ),
       )
-      .take(1_000)
+      .take(10000)
 
-    randomPeriods ++ everyPositiveMonthDurationUpToMax
+    everyPositiveMonthDurationUpToMax ++ randomPeriods
   }
 
   private val consideredRange: DateRange = DateRange(
