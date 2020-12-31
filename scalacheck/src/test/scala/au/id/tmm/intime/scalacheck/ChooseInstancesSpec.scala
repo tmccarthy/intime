@@ -56,11 +56,13 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     }
   }
 
-  "the choose for ZonedDateTime" should "function correctly when values are close to one another" in {
+  // TODO https://github.com/tmccarthy/intime/issues/12
+  behavior of "the choose for ZonedDateTime"
+  ignore should "function correctly when values are close to one another" in {
     val min = Instant.EPOCH.atZone(ZoneOffset.UTC)
     val max = min.plusMinutes(1)
 
-    forAll(chooseZonedDateTime.choose(min, max)) { genValue: ZonedDateTime =>
+    forAll(chooseZonedDateTime.choose(min, max), minSuccessful(10000)) { genValue: ZonedDateTime =>
       assert(Ordering[ZonedDateTime].lteq(min, genValue) && Ordering[ZonedDateTime].lteq(genValue, max))
     }
   }
@@ -69,7 +71,7 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     val min = Instant.EPOCH.atOffset(ZoneOffset.UTC)
     val max = min.plusMinutes(1)
 
-    forAll(chooseOffsetDateTime.choose(min, max)) { genValue: OffsetDateTime =>
+    forAll(chooseOffsetDateTime.choose(min, max), minSuccessful(10000)) { genValue: OffsetDateTime =>
       assert(Ordering[OffsetDateTime].lteq(min, genValue) && Ordering[OffsetDateTime].lteq(genValue, max))
     }
   }
@@ -78,7 +80,7 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     val min = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC)
     val max = min.plusMinutes(1)
 
-    forAll(chooseOffsetTime.choose(min, max)) { genValue: OffsetTime =>
+    forAll(chooseOffsetTime.choose(min, max), minSuccessful(10000)) { genValue: OffsetTime =>
       assert(Ordering[OffsetTime].lteq(min, genValue) && Ordering[OffsetTime].lteq(genValue, max))
     }
   }

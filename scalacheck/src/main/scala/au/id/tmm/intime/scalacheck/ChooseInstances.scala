@@ -69,7 +69,7 @@ trait ChooseInstances {
       _ => LocalTime.MAX,
     )
 
-  // The ordering of ZoneOffset is unintuative in that +10:00 is less than +09:00 (since it "comes
+  // The ordering of ZoneOffset is unintuitive in that +10:00 is less than +09:00 (since it "comes
   // first" as the sun rises). Accordingly we have to reverse our mapping into the choose for long
   implicit val chooseZoneOffset: Choose[ZoneOffset] = (min, max) =>
     Gen.choose(max.getTotalSeconds, min.getTotalSeconds).map(totalSeconds => ZoneOffset.ofTotalSeconds(totalSeconds))
@@ -87,15 +87,24 @@ trait ChooseInstances {
         zone <- arbitraryZoneId.arbitrary
       } yield instant.atZone(zone)
 
-  implicit def chooseOffsetDateTime: Choose[OffsetDateTime] =
-    (min, max) =>
-      for {
-        instant <- Gen.choose[Instant](
-          min.toInstant,
-          max.toInstant,
-        )
-        offset <- arbitraryZoneOffset.arbitrary
-      } yield instant.atOffset(offset)
+  implicit def chooseOffsetDateTime: Choose[OffsetDateTime] = {
+    // compareTo for OffsetDateTime unhelpfully reverses the ordering of the ZoneOffset component, so we have to reverse
+    // the ordering of the Choose here
+
+    def negate(zoneOffset: ZoneOffset): ZoneOffset = ZoneOffset.ofTotalSeconds(-zoneOffset.getTotalSeconds)
+
+    combineChooses[Instant, ZoneOffset, OffsetDateTime](
+      _.toInstant,
+      _.getOffset,
+      (instant, offset) => instant.atOffset(offset),
+      _ => ZoneOffset.MIN,
+      _ => ZoneOffset.MAX,
+    )(
+      t1Choose = implicitly,
+      t1Ordering = implicitly,
+      t2Choose = Choose.xmap[ZoneOffset, ZoneOffset](negate, negate),
+    )
+  }
 
   implicit def chooseOffsetTime: Choose[OffsetTime] =
     (min, max) => {
@@ -124,23 +133,27 @@ trait ChooseInstances {
       } yield OffsetTime.of(localTime, offset)
     }
 
-  private def combineChooses[T1 : Choose : Ordering, T2 : Choose, O](
+  private def combineChooses[T1, T2, O](
     extractT1: O => T1,
     extractT2: O => T2,
     combine: (T1, T2) => O,
     t2Floor: T1 => T2,
     t2Ceil: T1 => T2,
+  )(implicit
+    t1Choose: Choose[T1],
+    t1Ordering: Ordering[T1],
+    t2Choose: Choose[T2],
   ): Choose[O] =
     (minO, maxO) => {
       val minT1 = extractT1(minO)
       val minT2 = extractT1(maxO)
 
       for {
-        t1 <- implicitly[Choose[T1]].choose(minT1, minT2)
+        t1 <- t1Choose.choose(minT1, minT2)
 
-        t2 <- implicitly[Choose[T2]].choose(
-          min = if (implicitly[Ordering[T1]].lteq(t1, minT1)) extractT2(minO) else t2Floor(t1),
-          max = if (implicitly[Ordering[T1]].gteq(t1, minT2)) extractT2(maxO) else t2Ceil(t1),
+        t2 <- t2Choose.choose(
+          min = if (t1Ordering.lteq(t1, minT1)) extractT2(minO) else t2Floor(t1),
+          max = if (t1Ordering.gteq(t1, minT2)) extractT2(maxO) else t2Ceil(t1),
         )
       } yield combine(t1, t2)
     }
