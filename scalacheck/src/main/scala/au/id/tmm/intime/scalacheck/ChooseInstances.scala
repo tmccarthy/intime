@@ -126,33 +126,37 @@ trait ChooseInstances {
   }
 
   implicit def chooseOffsetTime: Choose[OffsetTime] =
-    (min, max) => {
-      def epochNanos(offsetTime: OffsetTime): Long =
-        offsetTime.toLocalTime.toNanoOfDay -
-          java.lang.Math.multiplyExact(offsetTime.getOffset.getTotalSeconds.toLong, NANOS_PER_SECOND)
+    (min, max) =>
+      {
+        def epochNanos(offsetTime: OffsetTime): Long =
+          offsetTime.toLocalTime.toNanoOfDay -
+            Math.multiplyExact(offsetTime.getOffset.getTotalSeconds.toLong, NANOS_PER_SECOND)
 
-      val minNanos = epochNanos(min)
-      val maxNanos = epochNanos(max)
+        val minNanos = epochNanos(min)
+        val maxNanos = epochNanos(max)
 
-      for {
-        epochDiffDuration <- Gen.choose[Long](minNanos, maxNanos).map(Duration.ofNanos)
+        for {
+          epochDiffDuration <- Gen.choose[Long](minNanos, maxNanos).map(Duration.ofNanos)
 
-        offsetSeconds <- Gen.choose[Long](
-          (epochDiffDuration min Duration.ofHours(18)).negated().getSeconds,
-          (Duration.ofDays(1).getSeconds - epochDiffDuration.getSeconds) min Duration.ofHours(18).getSeconds,
-        )
+          offsetSeconds <- Gen.choose[Long](
+            (epochDiffDuration min Duration.ofHours(18)).negated().getSeconds,
+            (Duration.ofDays(1).getSeconds - epochDiffDuration.getSeconds) min Duration.ofHours(18).getSeconds,
+          )
 
-        offsetComponent = Duration.ofSeconds(offsetSeconds)
+          offsetComponent = Duration.ofSeconds(offsetSeconds)
 
-        localTimeComponent = epochDiffDuration + offsetComponent
+          localTimeComponent = epochDiffDuration + offsetComponent
 
-        offset = ZoneOffset.ofTotalSeconds(offsetComponent.getSeconds.toInt)
-        localTime = LocalTime.ofNanoOfDay(
-          localTimeComponent.toNanos max NANO_OF_DAY.range.getMinimum min NANO_OF_DAY.range.getMaximum,
-        )
+          offset = ZoneOffset.ofTotalSeconds(offsetComponent.getSeconds.toInt)
+          localTime = LocalTime.ofNanoOfDay(
+            (localTimeComponent.toNanos max NANO_OF_DAY.range.getMinimum) min NANO_OF_DAY.range.getMaximum,
+          )
 
-      } yield OffsetTime.of(localTime, offset)
-    }
+        } yield OffsetTime.of(localTime, offset)
+      }.filter { offsetDateTime =>
+        // TODO fix this properly https://github.com/tmccarthy/intime/issues/13
+        offsetDateTime >= min && offsetDateTime <= max
+      }
 
   private def combineChooses[T1, T2, O](
     extractT1: O => T1,
