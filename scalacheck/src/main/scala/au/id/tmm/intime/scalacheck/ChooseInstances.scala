@@ -4,6 +4,7 @@ import java.time._
 import java.time.temporal.ChronoField._
 import java.time.temporal.{ChronoField, TemporalAccessor}
 
+import au.id.tmm.intime.scalacheck.chooseimpls.ZoneRegionChoose
 import au.id.tmm.intime.std.implicits.all._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
@@ -78,14 +79,20 @@ trait ChooseInstances {
     Choose.xmap(DayOfWeek.of, _.getValue)
 
   implicit def chooseZonedDateTime: Choose[ZonedDateTime] =
-    (min, max) =>
+    (min, max) => {
+      val zoneRegionChooseFactory = ZoneRegionChoose.Factory()
+
       for {
         instant <- Gen.choose[Instant](
           min.toInstant,
           max.toInstant,
         )
-        zone <- arbitraryZoneId.arbitrary
+        zone <- zoneRegionChooseFactory.zoneRegionChooseAsAt(instant).choose(
+          if (Ordering[Instant].lteq(instant, min.toInstant)) min.getZone else ZoneOffset.MAX,
+          if (Ordering[Instant].gteq(instant, max.toInstant)) max.getZone else ZoneOffset.MIN,
+        )
       } yield instant.atZone(zone)
+    }
 
   implicit def chooseOffsetDateTime: Choose[OffsetDateTime] = {
     // compareTo for OffsetDateTime unhelpfully reverses the ordering of the ZoneOffset component, so we have to reverse
