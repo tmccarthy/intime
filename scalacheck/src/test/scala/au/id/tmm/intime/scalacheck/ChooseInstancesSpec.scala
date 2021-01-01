@@ -56,9 +56,7 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     }
   }
 
-  // TODO https://github.com/tmccarthy/intime/issues/12
-  behavior of "the choose for ZonedDateTime"
-  it should "function correctly when values are close to one another" in {
+  "the choose for ZonedDateTime" should "function correctly when values are close to one another" in {
     val min = Instant.EPOCH.atZone(ZoneOffset.UTC)
     val max = min.plusMinutes(1)
 

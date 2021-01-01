@@ -12,7 +12,7 @@ import scala.math.Ordering.Implicits.infixOrderingOps
 class ZoneRegionChooseSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
   private val testInstant: Instant = Instant.parse("2021-01-01T00:00:00Z")
-  private val sut = ZoneRegionChoose.asAt(testInstant)
+  private val sut                  = ZoneRegionChoose.asAt(testInstant)
 
   "a zone region choose" should "only return zone regions" in {
     forAll(sut.choose(ZoneOffset.MAX, ZoneOffset.MIN)) { zoneId =>

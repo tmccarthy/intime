@@ -87,10 +87,14 @@ trait ChooseInstances {
           min.toInstant,
           max.toInstant,
         )
-        zone <- zoneRegionChooseFactory.zoneRegionChooseAsAt(instant).choose(
-          if (Ordering[Instant].lteq(instant, min.toInstant)) min.getZone else ZoneOffset.MAX,
-          if (Ordering[Instant].gteq(instant, max.toInstant)) max.getZone else ZoneOffset.MIN,
-        )
+        zone <-
+          zoneRegionChooseFactory
+            .zoneRegionChooseAsAt(instant)
+            .reverse
+            .choose(
+              if (Ordering[Instant].lteq(instant, min.toInstant)) min.getZone else ZoneOffset.MIN,
+              if (Ordering[Instant].gteq(instant, max.toInstant)) max.getZone else ZoneOffset.MAX,
+            )
       } yield instant.atZone(zone)
     }
 
