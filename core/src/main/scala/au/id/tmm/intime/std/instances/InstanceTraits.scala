@@ -2,6 +2,11 @@ package au.id.tmm.intime.std.instances
 
 import java.time._
 
+/**
+  * Most of these `Ordering` instances are provided by an implicit conversion for `Comparable` types. However, some
+  * types (like `LocalDate`) encounter issues due to type variance in Scala 2.12. Once support for 2.12 is dropped,
+  * these traits can probably be deleted. See https://github.com/tmccarthy/intime/issues/15
+  */
 object InstanceTraits {
 
   trait DurationInstances {
