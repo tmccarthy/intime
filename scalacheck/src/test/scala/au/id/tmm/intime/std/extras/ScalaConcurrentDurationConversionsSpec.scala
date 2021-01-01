@@ -43,8 +43,9 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
     assertSameNanos(jDuration, sFiniteDuration)
   }
 
-  "Converting an SFiniteDuration to a JDuration" should "obey the round trip law" in forAll { sFiniteDuration: SFiniteDuration =>
-    assert(jDurationToSDuration(sFiniteDurationToJDuration(sFiniteDuration)) === sFiniteDuration)
+  "Converting an SFiniteDuration to a JDuration" should "obey the round trip law" in forAll {
+    sFiniteDuration: SFiniteDuration =>
+      assert(jDurationToSDuration(sFiniteDurationToJDuration(sFiniteDuration)) === Right(sFiniteDuration))
   }
 
   it should "be precise down to the nanosecond" in forAll { sFiniteDuration: SFiniteDuration =>
@@ -57,19 +58,22 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
     }
   }
 
-  it should "return None if it exceeds the maximum SDuration" in {
-    val genLargePositiveJDuration = Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION, JDuration.ofSeconds(Long.MaxValue, NANOS_PER_SECOND - 1))
-    val genLargeNegativeJDuration = Gen.choose[JDuration](JDuration.ofSeconds(Long.MinValue, 0), LARGEST_S_DURATION_AS_J_DURATION.negated)
+  it should "fail if it exceeds the maximum SDuration" in {
+    val genLargePositiveJDuration =
+      Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION, JDuration.ofSeconds(Long.MaxValue, NANOS_PER_SECOND - 1))
+    val genLargeNegativeJDuration =
+      Gen.choose[JDuration](JDuration.ofSeconds(Long.MinValue, 0), LARGEST_S_DURATION_AS_J_DURATION.negated)
 
     val genLargeJDuration = Gen.oneOf(genLargePositiveJDuration, genLargeNegativeJDuration)
 
     forAll(genLargeJDuration) { largeJDuration =>
-      assert(jDurationToSDuration(largeJDuration) === None)
+      assert(jDurationToSDuration(largeJDuration).left.map(_.jDuration) === Left(largeJDuration))
     }
   }
 
   it should "be precise down to the nanosecond if it fits in an SDuration" in {
-    val genSmallJDuration = Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION.negated, LARGEST_S_DURATION_AS_J_DURATION)
+    val genSmallJDuration =
+      Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION.negated, LARGEST_S_DURATION_AS_J_DURATION)
 
     forAll(genSmallJDuration) { smallJDuration =>
       assertSameNanos(smallJDuration, jDurationToSDuration(smallJDuration).getOrElse(fail))
@@ -86,11 +90,11 @@ object ScalaConcurrentDurationConversionsSpec {
     JDuration.ofSeconds(Long.MaxValue / NANOS_PER_SECOND, Long.MaxValue % NANOS_PER_SECOND)
 
   private def assertSameNanos(jDuration: JDuration, sDuration: SDuration): Assertion = {
-    if (jDuration.isNegative && sDuration.lt(SDuration.Zero)) return assertSameNanos(jDuration.negated, - sDuration)
+    if (jDuration.isNegative && sDuration.lt(SDuration.Zero)) return assertSameNanos(jDuration.negated, -sDuration)
 
     import org.scalatest.Assertions._
 
-    val sDurationNanos = sDuration.toNanos % NANOS_PER_SECOND
+    val sDurationNanos   = sDuration.toNanos % NANOS_PER_SECOND
     val sDurationSeconds = sDuration.toNanos / NANOS_PER_SECOND
 
     assert(jDuration.getSeconds === sDurationSeconds)
