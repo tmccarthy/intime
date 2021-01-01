@@ -1,0 +1,5 @@
+/**
+ * Tests in this package are testing functionality in the `core` module, but make use of the generators in the
+ * scalaCheck module. There's probably a better way to structure the module dependencies to achieve this, but this is a
+ * good enough approach for the moment.
+ */
