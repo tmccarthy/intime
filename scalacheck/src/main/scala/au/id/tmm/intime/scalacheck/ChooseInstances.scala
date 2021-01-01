@@ -80,17 +80,25 @@ trait ChooseInstances {
 
   implicit def chooseZonedDateTime: Choose[ZonedDateTime] =
     (min, max) => {
-      val zoneRegionChooseFactory = ZoneRegionChoose.Factory()
-
       for {
         instant <- Gen.choose[Instant](
           min.toInstant,
           max.toInstant,
         )
+
+        // The ordering used for the zone component in `ZonedDateTime`'s compareTo is strange, hence this dedicated
+        // ordering
+        zoneIdOrdering: Ordering[ZoneId] = {
+          implicit val reverseStringOrdering: Ordering[String] = Ordering.String.reverse
+
+          Ordering.by { zoneId: ZoneId =>
+            (zoneId.getRules.getOffset(instant), zoneId.getId)
+          }.reverse
+        }
+
         zone <-
-          zoneRegionChooseFactory
-            .zoneRegionChooseAsAt(instant)
-            .reverse
+          ZoneRegionChoose
+            .asAt(instant)(zoneIdOrdering)
             .choose(
               if (Ordering[Instant].lteq(instant, min.toInstant)) min.getZone else ZoneOffset.MIN,
               if (Ordering[Instant].gteq(instant, max.toInstant)) max.getZone else ZoneOffset.MAX,
