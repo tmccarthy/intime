@@ -129,7 +129,7 @@ trait ChooseInstances {
     (min, max) => {
       def epochNanos(offsetTime: OffsetTime): Long =
         offsetTime.toLocalTime.toNanoOfDay -
-          offsetTime.getOffset.getTotalSeconds.toLong * NANOS_PER_SECOND
+          java.lang.Math.multiplyExact(offsetTime.getOffset.getTotalSeconds.toLong, NANOS_PER_SECOND)
 
       val minNanos = epochNanos(min)
       val maxNanos = epochNanos(max)
@@ -146,8 +146,10 @@ trait ChooseInstances {
 
         localTimeComponent = epochDiffDuration + offsetComponent
 
-        offset    = ZoneOffset.ofTotalSeconds(offsetComponent.getSeconds.toInt)
-        localTime = LocalTime.ofNanoOfDay(localTimeComponent.toNanos)
+        offset = ZoneOffset.ofTotalSeconds(offsetComponent.getSeconds.toInt)
+        localTime = LocalTime.ofNanoOfDay(
+          localTimeComponent.toNanos max NANO_OF_DAY.range.getMinimum min NANO_OF_DAY.range.getMaximum,
+        )
 
       } yield OffsetTime.of(localTime, offset)
     }

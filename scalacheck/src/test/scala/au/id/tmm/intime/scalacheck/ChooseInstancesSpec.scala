@@ -78,7 +78,7 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
     val min = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC)
     val max = min.plusMinutes(1)
 
-    forAll(chooseOffsetTime.choose(min, max), minSuccessful(10000)) { genValue: OffsetTime =>
+    forAll(chooseOffsetTime.choose(min, max), minSuccessful(100000)) { genValue: OffsetTime =>
       assert(Ordering[OffsetTime].lteq(min, genValue) && Ordering[OffsetTime].lteq(genValue, max))
     }
   }
