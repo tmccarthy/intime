@@ -7,6 +7,7 @@ import au.id.tmm.intime.scalacheck.{arbitraryDuration, chooseDuration}
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversions._
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversionsSpec._
 import org.scalacheck.Gen
+import org.scalatest.Assertion
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
@@ -39,7 +40,7 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
   it should "return Some for a finite SDuration" in forAll { sFiniteDuration: SFiniteDuration =>
     val jDuration = sDurationToJDuration(sFiniteDuration).getOrElse(fail)
 
-    assert(unsafeNanos(jDuration) === sFiniteDuration.toNanos)
+    assertSameNanos(jDuration, sFiniteDuration)
   }
 
   "Converting an SFiniteDuration to a JDuration" should "obey the round trip law" in forAll { sFiniteDuration: SFiniteDuration =>
@@ -47,9 +48,7 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
   }
 
   it should "be precise down to the nanosecond" in forAll { sFiniteDuration: SFiniteDuration =>
-    val jDuration = sFiniteDurationToJDuration(sFiniteDuration)
-
-    assert(unsafeNanos(jDuration) === sFiniteDuration.toNanos)
+    assertSameNanos(sFiniteDurationToJDuration(sFiniteDuration), sFiniteDuration)
   }
 
   "Converting a JDuration to an SDuration" should "obey the round trip law" in forAll { jDuration: JDuration =>
@@ -73,7 +72,7 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
     val genSmallJDuration = Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION.negated, LARGEST_S_DURATION_AS_J_DURATION)
 
     forAll(genSmallJDuration) { smallJDuration =>
-      assert(jDurationToSDuration(smallJDuration).getOrElse(fail).toNanos === unsafeNanos(smallJDuration))
+      assertSameNanos(smallJDuration, jDurationToSDuration(smallJDuration).getOrElse(fail))
     }
   }
 
@@ -86,7 +85,16 @@ object ScalaConcurrentDurationConversionsSpec {
   private val LARGEST_S_DURATION_AS_J_DURATION: JDuration =
     JDuration.ofSeconds(Long.MaxValue / NANOS_PER_SECOND, Long.MaxValue % NANOS_PER_SECOND)
 
-  private def unsafeNanos(jDuration: JDuration): Long =
-    Math.addExact(Math.multiplyExact(jDuration.getSeconds, NANOS_PER_SECOND), jDuration.getNano)
+  private def assertSameNanos(jDuration: JDuration, sDuration: SDuration): Assertion = {
+    if (jDuration.isNegative && sDuration.lt(SDuration.Zero)) return assertSameNanos(jDuration.negated, - sDuration)
+
+    import org.scalatest.Assertions._
+
+    val sDurationNanos = sDuration.toNanos % NANOS_PER_SECOND
+    val sDurationSeconds = sDuration.toNanos / NANOS_PER_SECOND
+
+    assert(jDuration.getSeconds === sDurationSeconds)
+    assert(jDuration.getNano === sDurationNanos)
+  }
 
 }
