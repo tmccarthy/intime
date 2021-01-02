@@ -5,13 +5,12 @@ import java.time.temporal.ChronoField._
 import java.time.temporal.{ChronoField, TemporalAccessor}
 
 import au.id.tmm.intime.scalacheck.chooseimpls.ZoneRegionChoose
+import au.id.tmm.intime.std.NANOS_PER_SECOND
 import au.id.tmm.intime.std.implicits.all._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 
 trait ChooseInstances {
-
-  private val NANOS_PER_SECOND = ChronoField.NANO_OF_SECOND.range().getMaximum + 1
 
   implicit val chooseDuration: Choose[Duration] =
     combineChooses[Long, Long, Duration](

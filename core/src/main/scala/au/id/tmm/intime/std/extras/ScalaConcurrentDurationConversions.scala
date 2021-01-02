@@ -1,7 +1,8 @@
 package au.id.tmm.intime.std.extras
 
-import java.time.temporal.ChronoField
 import java.time.{Duration => JDuration}
+
+import au.id.tmm.intime.std.NANOS_PER_SECOND
 
 import scala.concurrent.duration.{
   Duration => SDuration,
@@ -10,8 +11,6 @@ import scala.concurrent.duration.{
 }
 
 object ScalaConcurrentDurationConversions {
-
-  private[extras] val NANOS_PER_SECOND: Long = ChronoField.NANO_OF_SECOND.range().getMaximum + 1
 
   /**
     * Converts a `java.time.Duration` to a `scala.concurrent.duration.FiniteDuration`.

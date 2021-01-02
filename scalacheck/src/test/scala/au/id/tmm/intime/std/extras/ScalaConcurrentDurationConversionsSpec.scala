@@ -3,6 +3,7 @@ package au.id.tmm.intime.std.extras
 import java.time.{Duration => JDuration}
 
 import au.id.tmm.intime.scalacheck.{arbitraryDuration, chooseDuration}
+import au.id.tmm.intime.std.NANOS_PER_SECOND
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversions._
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversionsSpec._
 import org.scalacheck.Arbitrary.arbitrary
