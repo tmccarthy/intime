@@ -9,11 +9,16 @@ import scala.concurrent.duration.{
   NANOSECONDS => S_NANOSECONDS,
 }
 
-// TODO these all need docs
 object ScalaConcurrentDurationConversions {
 
   private[extras] val NANOS_PER_SECOND: Long = ChronoField.NANO_OF_SECOND.range().getMaximum + 1
 
+  /**
+    * Converts a `java.time.Duration` to a `scala.concurrent.duration.FiniteDuration`.
+    *
+   * Durations that exceed the maximum size for `scala.concurrent.duration.FiniteDuration` (±(2^63^-1)ns or about 292
+    * years) result in an `Errors.JavaTimeDurationTooLargeForScalaConcurrentDurationException` being returned.
+    */
   def jDurationToSDuration(
     jDuration: JDuration,
   ): Either[Errors.JavaTimeDurationTooLargeForScalaConcurrentDurationException, SFiniteDuration] =
@@ -26,20 +31,40 @@ object ScalaConcurrentDurationConversions {
         Left(new Errors.JavaTimeDurationTooLargeForScalaConcurrentDurationException(jDuration, e))
     }
 
+  /**
+    * Converts a `java.time.Duration` to a `scala.concurrent.duration.Duration`.
+    *
+   * Durations that exceed the maximum size for `scala.concurrent.duration.FiniteDuration` (±(2^63^-1)ns or about 292
+    * years) are converted to either `MinusInf` or `Inf` depending on the sign.
+    */
   def jDurationToSDurationTotal(jDuration: JDuration): SDuration =
     jDurationToSDuration(jDuration).getOrElse {
       if (jDuration.isNegative) SDuration.MinusInf else SDuration.Inf
     }
 
+  /**
+    * Converts a `scala.concurrent.duration.FiniteDuration` to a `java.time.Duration`.
+    */
   def sFiniteDurationToJDuration(sFiniteDuration: SFiniteDuration): JDuration =
     JDuration.ofNanos(sFiniteDuration.toNanos)
 
+  /**
+    * Converts a `scala.concurrent.duration.Duration` to a `java.time.Duration`.
+    *
+   * Infinite durations result in an `Errors.ScalaConcurrentDurationIsInfinite` being returned.
+    */
   def sDurationToJDuration(sDuration: SDuration): Either[Errors.ScalaConcurrentDurationIsInfinite, JDuration] =
     sDuration match {
       case infinite: SDuration.Infinite     => Left(new Errors.ScalaConcurrentDurationIsInfinite(infinite))
       case sFiniteDuration: SFiniteDuration => Right(sFiniteDurationToJDuration(sFiniteDuration))
     }
 
+  /**
+    * Converts a `scala.concurrent.duration.Duration` to a `java.time.Duration`.
+    *
+   * Infinite durations are converted to the maximum/minimum representable `java.time.Duration`, depending on their
+    * size.
+    */
   def sDurationToJDurationTotal(sDuration: SDuration): JDuration =
     sDuration match {
       case infinite: SDuration.Infinite =>
