@@ -96,6 +96,36 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
       assert(jDurationToSDurationTotal(largeNegativeJDuration) === SDuration.MinusInf)
   }
 
+  "The JDuration syntax" should "compile" in {
+    import au.id.tmm.intime.std.syntax.duration._
+
+    val jDuration: JDuration = JDuration.ZERO
+
+    assert(jDuration.toScalaConcurrent === Right(SDuration.Zero))
+    assert(jDuration.toScalaConcurrentTotal === SDuration.Zero)
+    assert(jDuration.toScalaConcurrentUnsafe === SDuration.Zero)
+  }
+
+  "The SDuration syntax" should "compile for a finite duration" in {
+    import au.id.tmm.intime.std.syntax.duration._
+
+    val sFiniteDuration: SFiniteDuration = SDuration.Zero
+
+    assert(sFiniteDuration.toJava === JDuration.ZERO)
+    assert(sFiniteDuration.toJavaTotal === JDuration.ZERO)
+    assert(sFiniteDuration.toJavaUnsafe === JDuration.ZERO)
+  }
+
+  it should "compile for a possibly infinite duration" in {
+    import au.id.tmm.intime.std.syntax.duration._
+
+    val sDuration: SDuration = SDuration.Zero
+
+    assert(sDuration.toJava === Right(JDuration.ZERO))
+    assert(sDuration.toJavaTotal === JDuration.ZERO)
+    assert(sDuration.toJavaUnsafe === JDuration.ZERO)
+  }
+
 }
 
 object ScalaConcurrentDurationConversionsSpec {

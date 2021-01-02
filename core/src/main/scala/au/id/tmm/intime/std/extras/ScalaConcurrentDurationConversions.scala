@@ -64,38 +64,33 @@ object ScalaConcurrentDurationConversions {
 
     final class JDurationOps private[std] (jDuration: JDuration) {
       def toScalaConcurrent
-        : Either[Errors.JavaTimeDurationTooLargeForScalaConcurrentDurationException, SFiniteDuration] = ???
+        : Either[Errors.JavaTimeDurationTooLargeForScalaConcurrentDurationException, SFiniteDuration] =
+        jDurationToSDuration(jDuration)
 
-      def toScalaConcurrentUnsafe: SFiniteDuration = ???
+      def toScalaConcurrentUnsafe: SFiniteDuration =
+        jDurationToSDuration(jDuration) match {
+          case Right(sFiniteDuration) => sFiniteDuration
+          case Left(e)                => throw e
+        }
 
-      def toScalaConcurrentOrInfinite: SDuration = ???
+      def toScalaConcurrentTotal: SDuration = jDurationToSDurationTotal(jDuration)
     }
 
-    object JDurationOps {
-      trait ToJDurationOps {}
+    final class SDurationOps private[std] (sDuration: SDuration) {
+      def toJava: Either[Errors.ScalaConcurrentDurationIsInfinite, JDuration] =
+        sDurationToJDuration(sDuration)
+
+      def toJavaUnsafe: JDuration =
+        sDurationToJDuration(sDuration) match {
+          case Right(jDuration) => jDuration
+          case Left(e)          => throw e
+        }
+
+      def toJavaTotal: JDuration = sDurationToJDurationTotal(sDuration)
     }
 
-    final class SDurationOps private (sDuration: SDuration) {
-      def toJava: Either[Errors.ScalaConcurrentDurationIsInfinite, JDuration] = ???
-
-      def toJavaUnsafe: JDuration = ???
-
-      def toJavaTotal: JDuration = ???
-    }
-
-    final class SFiniteDurationOps private[ScalaConcurrentDurationConversions] (sFiniteDuration: SFiniteDuration) {
-      def toJava: JDuration = ???
-    }
-
-    object SDurationOps {
-      trait ToSDurationOps extends LowPriorityToSDurationOps {
-        implicit def toSFiniteDurationOps(sFiniteDuration: SFiniteDuration): SFiniteDurationOps =
-          new SFiniteDurationOps(sFiniteDuration)
-      }
-
-      trait LowPriorityToSDurationOps {
-        implicit def toSDurationOps(sDuration: SDuration): SDurationOps = new SDurationOps(sDuration)
-      }
+    final class SFiniteDurationOps private[std] (sFiniteDuration: SFiniteDuration) {
+      def toJava: JDuration = sFiniteDurationToJDuration(sFiniteDuration)
     }
 
   }
