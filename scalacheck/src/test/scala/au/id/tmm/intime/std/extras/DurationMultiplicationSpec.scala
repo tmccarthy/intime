@@ -3,6 +3,7 @@ package au.id.tmm.intime.std.extras
 import java.time.Duration
 
 import au.id.tmm.intime.scalacheck.arbitraryDuration
+import au.id.tmm.intime.std.syntax.duration._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
@@ -30,6 +31,11 @@ class DurationMultiplicationSpec extends AnyFlatSpec with ScalaCheckDrivenProper
 
   it can "overflow" in {
     intercept[ArithmeticException](DurationMultiplication.multiply(Duration.ofSeconds(Long.MaxValue), 2))
+  }
+
+  "the duration multiplication syntax" should "compile" in {
+    assert(Duration.ZERO.multipliedBy(1d) === Duration.ZERO)
+    assert((Duration.ZERO * 1d) === Duration.ZERO)
   }
 
 }

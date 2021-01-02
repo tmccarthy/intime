@@ -29,4 +29,13 @@ object DurationMultiplication {
       }
     }
 
+  object Syntax {
+    private[std] trait DurationMultiplicationOps {
+      protected def duration: Duration
+
+      def multipliedBy(k: Double): Duration = DurationMultiplication.multiply(duration, k)
+      def *(k: Double): Duration            = DurationMultiplication.multiply(duration, k)
+    }
+  }
+
 }

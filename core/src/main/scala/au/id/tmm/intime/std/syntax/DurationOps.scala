@@ -2,12 +2,15 @@ package au.id.tmm.intime.std.syntax
 
 import java.time.Duration
 
-import au.id.tmm.intime.std.instances.duration._
+import au.id.tmm.intime.std.extras.DurationMultiplication.Syntax.DurationMultiplicationOps
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversions
+import au.id.tmm.intime.std.instances.duration._
 
-import scala.concurrent.duration.{FiniteDuration => SFiniteDuration, Duration => SDuration}
+import scala.concurrent.duration.{Duration => SDuration, FiniteDuration => SFiniteDuration}
 
-final class DurationOps private (duration: Duration) extends OrderingOps[Duration](duration) {
+final class DurationOps private (protected val duration: Duration)
+    extends OrderingOps[Duration](duration)
+    with DurationMultiplicationOps {
   def +(temporalAmount: Duration): Duration = duration.plus(temporalAmount)
   def -(temporalAmount: Duration): Duration = duration.minus(temporalAmount)
   def /(divisor: Long): Duration            = duration.dividedBy(divisor)
