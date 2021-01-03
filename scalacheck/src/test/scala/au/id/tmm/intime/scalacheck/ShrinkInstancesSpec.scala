@@ -2,6 +2,7 @@ package au.id.tmm.intime.scalacheck
 
 import java.time._
 
+import au.id.tmm.intime.scalacheck.all._
 import org.scalacheck.Shrink
 import org.scalatest.flatspec.AnyFlatSpec
 

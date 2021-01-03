@@ -1,5 +1,6 @@
 package au.id.tmm.intime.scalacheck
 
+import au.id.tmm.intime.scalacheck.all._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
@@ -7,7 +8,7 @@ class ArbitraryInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCh
 
   "arbitrary durations" should "be valid" in forAll(arbitraryDuration)(_ => succeed)
   "arbitrary instants" should "be valid" in forAll(arbitraryInstant)(_ => succeed)
-  "arbitrary years" should "be valid" in forAll(arbitraryYear)(_ => succeed)
+  "arbitrary years" should "be valid" in forAll(intimeArbitraryForYear)(_ => succeed)
   "arbitrary months" should "be valid" in forAll(arbitraryMonth)(_ => succeed)
   "arbitrary yearMonths" should "be valid" in forAll(arbitraryYearMonth)(_ => succeed)
   "arbitrary localDates" should "be valid" in forAll(arbitraryLocalDate)(_ => succeed)

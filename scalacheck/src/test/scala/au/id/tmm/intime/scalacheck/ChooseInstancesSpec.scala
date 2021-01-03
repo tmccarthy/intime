@@ -2,6 +2,7 @@ package au.id.tmm.intime.scalacheck
 
 import java.time._
 
+import au.id.tmm.intime.scalacheck.all._
 import au.id.tmm.intime.std.instances.all._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen.Choose
@@ -14,7 +15,7 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
 
   testChooseRange[Duration](chooseDuration)
   testChooseRange[Instant](chooseInstant)
-  testChooseRange[Year](chooseYear)
+  testChooseRange[Year](intimeChooseForYear)
   testChooseRange[Month](chooseMonth)
   testChooseRange[YearMonth](chooseYearMonth)
   testChooseRange[MonthDay](chooseMonthDay)

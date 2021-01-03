@@ -12,9 +12,6 @@ trait CogenInstances {
   implicit val instantCogen: Cogen[Instant] =
     Cogen[(Long, Int)].contramap(i => (i.getEpochSecond, i.getNano))
 
-  implicit val yearCogen: Cogen[Year] =
-    Cogen[Int].contramap(_.getValue)
-
   implicit val monthCogen: Cogen[Month] =
     Cogen[Int].contramap(_.getValue)
 

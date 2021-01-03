@@ -5,4 +5,8 @@ package object scalacheck
     with ChooseInstances
     with CogenInstances
     with SensibleJavaTimeGenerators
-    with ShrinkInstances
+    with ShrinkInstances {
+  object year extends YearInstances
+
+  object all extends AnyRef with YearInstances
+}

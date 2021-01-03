@@ -26,9 +26,6 @@ trait ChooseInstances {
       case second :: nano :: Nil => Instant.ofEpochSecond(second, nano)
     }
 
-  implicit val chooseYear: Choose[Year] =
-    Choose.xmap[Int, Year](Year.of, _.getValue)
-
   implicit val chooseMonth: Choose[Month] =
     Choose.xmap[Int, Month](Month.of, _.getValue)
 

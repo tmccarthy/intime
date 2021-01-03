@@ -39,12 +39,6 @@ trait ShrinkInstances {
   implicit val shrinkInstant: Shrink[Instant] =
     Shrink.xmap[Duration, Instant](Instant.EPOCH + _, Duration.between(Instant.EPOCH, _))
 
-  implicit val shrinkYear: Shrink[Year] = {
-    val epoch = Year.from(Instant.EPOCH.atZone(ZoneOffset.UTC))
-
-    Shrink.xmap[Int, Year](epoch.plusYears(_), y => y.minusYears(epoch.getValue).getValue)
-  }
-
   implicit val shrinkMonth: Shrink[Month] = shrinkEnum(Month.values)
 
   implicit val shrinkYearMonth: Shrink[YearMonth] = {

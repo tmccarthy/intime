@@ -3,6 +3,7 @@ package au.id.tmm.intime.scalacheck
 import java.time._
 import java.time.temporal.TemporalAccessor
 
+import au.id.tmm.intime.scalacheck.all._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 

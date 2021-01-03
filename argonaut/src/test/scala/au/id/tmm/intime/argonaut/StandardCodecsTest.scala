@@ -4,6 +4,7 @@ import java.time._
 
 import argonaut.{DecodeJson, DecodeResult, EncodeJson}
 import au.id.tmm.intime.scalacheck._
+import au.id.tmm.intime.scalacheck.all._
 import com.github.ghik.silencer.silent
 import org.scalacheck.Arbitrary
 import org.scalatest.flatspec.AnyFlatSpec
