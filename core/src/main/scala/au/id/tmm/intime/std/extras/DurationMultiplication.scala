@@ -39,6 +39,9 @@ object DurationMultiplication {
 
       def multipliedBy(k: Double): Duration = DurationMultiplication.multiply(duration, k)
       def *(k: Double): Duration            = DurationMultiplication.multiply(duration, k)
+
+      def dividedBy(k: Double): Duration = DurationMultiplication.divide(duration, k)
+      def /(k: Double): Duration         = DurationMultiplication.divide(duration, k)
     }
   }
 

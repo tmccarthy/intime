@@ -81,6 +81,8 @@ class DurationMultiplicationSpec extends AnyFlatSpec with ScalaCheckDrivenProper
   "the duration multiplication syntax" should "compile" in {
     assert(Duration.ZERO.multipliedBy(1d) === Duration.ZERO)
     assert((Duration.ZERO * 1d) === Duration.ZERO)
+    assert(Duration.ZERO.dividedBy(1d) === Duration.ZERO)
+    assert((Duration.ZERO / 1d) === Duration.ZERO)
   }
 
 }
