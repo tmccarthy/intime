@@ -16,7 +16,7 @@ object DurationMultiplication {
       case 0                 => Duration.ZERO
       case d if !isFinite(d) => throw new ArithmeticException(d.toString)
       case _ => {
-        val safeNanos: BigInt = (BigInt(duration.toSeconds) * NANOS_PER_SECOND_BIGINT) + BigInt(duration.getNano)
+        val safeNanos: BigInt = (BigInt(duration.getSeconds) * NANOS_PER_SECOND_BIGINT) + BigInt(duration.getNano)
 
         val newNanos: BigInt = (BigDecimal(safeNanos) * k).toBigInt
 
