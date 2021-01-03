@@ -2,10 +2,11 @@ package au.id.tmm.intime.std.extras
 
 import java.time.{Duration => JDuration}
 
-import au.id.tmm.intime.scalacheck.{arbitraryDuration, chooseDuration}
+import au.id.tmm.intime.scalacheck.arbitraryDuration
 import au.id.tmm.intime.std.NANOS_PER_SECOND
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversions._
 import au.id.tmm.intime.std.extras.ScalaConcurrentDurationConversionsSpec._
+import au.id.tmm.intime.std.extras.TestingGens._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.Assertion
@@ -46,7 +47,7 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
     }
   }
 
-  it should "fail for an infinite SDuration" in forAll(genInfiniteDuration) { sInfiniteDuration: SDuration.Infinite =>
+  it should "fail for an infinite SDuration" in forAll(genInfiniteSDuration) { sInfiniteDuration: SDuration.Infinite =>
     assert(sDurationToJDuration(sInfiniteDuration).left.map(_.sDuration) === Left(sInfiniteDuration))
   }
 
@@ -95,29 +96,30 @@ class ScalaConcurrentDurationConversionsSpec extends AnyFlatSpec with ScalaCheck
     }
   }
 
-  it should "fail if it exceeds the maximum SDuration" in forAll(genLargeJDuration) { largeJDuration =>
+  it should "fail if it exceeds the maximum SDuration" in forAll(genLargeJavaDuration) { largeJDuration =>
     assert(jDurationToSDuration(largeJDuration).left.map(_.jDuration) === Left(largeJDuration))
   }
 
-  it should "be precise down to the nanosecond if it fits in an SDuration" in forAll(genSmallJDuration) {
+  it should "be precise down to the nanosecond if it fits in an SDuration" in forAll(genSmallJavaDuration) {
     smallJDuration =>
       assertSameNanos(smallJDuration, jDurationToSDuration(smallJDuration).getOrElse(fail))
   }
 
   "The total conversion from a JDuration to an SDuration" should "convert small JDurations to a matching SFiniteDuration" in forAll(
-    genSmallJDuration,
+    genSmallJavaDuration,
   ) { smallJDuration =>
     assertSameNanos(smallJDuration, jDurationToSDurationTotal(smallJDuration))
   }
 
-  it should "convert large positive JDurations a positive infinite SDuration" in forAll(genLargePositiveJDuration) {
+  it should "convert large positive JDurations a positive infinite SDuration" in forAll(genLargeJavaPositiveDuration) {
     largePositiveJDuration =>
       assert(jDurationToSDurationTotal(largePositiveJDuration) === SDuration.Inf)
   }
 
-  it should "convert large negative JDurations to a negative infinite SDuration" in forAll(genLargeNegativeJDuration) {
-    largeNegativeJDuration =>
-      assert(jDurationToSDurationTotal(largeNegativeJDuration) === SDuration.MinusInf)
+  it should "convert large negative JDurations to a negative infinite SDuration" in forAll(
+    genLargeJavaNegativeDuration,
+  ) { largeNegativeJDuration =>
+    assert(jDurationToSDurationTotal(largeNegativeJDuration) === SDuration.MinusInf)
   }
 
   "The JDuration syntax" should "compile" in {
@@ -156,21 +158,7 @@ private object ScalaConcurrentDurationConversionsSpec {
 
   val MINIMUM_S_DURATION: SDuration = SDuration(-9223372036854775807L, NANOSECONDS)
 
-  val LARGEST_S_DURATION_AS_J_DURATION: JDuration =
-    JDuration.ofSeconds(Long.MaxValue / NANOS_PER_SECOND, Long.MaxValue % NANOS_PER_SECOND)
-
-  val genSmallJDuration: Gen[JDuration] =
-    Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION.negated, LARGEST_S_DURATION_AS_J_DURATION)
-
-  val genLargePositiveJDuration: Gen[JDuration] =
-    Gen.choose[JDuration](LARGEST_S_DURATION_AS_J_DURATION, JDuration.ofSeconds(Long.MaxValue, NANOS_PER_SECOND - 1))
-
-  val genLargeNegativeJDuration: Gen[JDuration] =
-    Gen.choose[JDuration](JDuration.ofSeconds(Long.MinValue, 0), LARGEST_S_DURATION_AS_J_DURATION.negated)
-
-  val genLargeJDuration: Gen[JDuration] = Gen.oneOf(genLargePositiveJDuration, genLargeNegativeJDuration)
-
-  val genInfiniteDuration: Gen[SDuration.Infinite] =
+  val genInfiniteSDuration: Gen[SDuration.Infinite] =
     Gen.oneOf(SDuration.Undefined, SDuration.Inf, SDuration.MinusInf)
 
   def assertSameNanos(jDuration: JDuration, sDuration: SDuration): Assertion = {
