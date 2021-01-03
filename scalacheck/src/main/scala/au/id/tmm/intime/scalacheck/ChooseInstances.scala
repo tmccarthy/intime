@@ -6,7 +6,7 @@ import java.time.temporal.{ChronoField, TemporalAccessor}
 
 import au.id.tmm.intime.scalacheck.chooseimpls.ZoneRegionChoose
 import au.id.tmm.intime.std.NANOS_PER_SECOND
-import au.id.tmm.intime.std.implicits.all._
+import au.id.tmm.intime.std.implicits._
 import org.scalacheck.Gen
 import org.scalacheck.Gen.Choose
 

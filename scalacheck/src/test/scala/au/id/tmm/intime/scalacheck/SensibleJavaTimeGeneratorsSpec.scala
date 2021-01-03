@@ -2,7 +2,7 @@ package au.id.tmm.intime.scalacheck
 
 import java.time._
 
-import au.id.tmm.intime.std.implicits.all._
+import au.id.tmm.intime.std.implicits._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 

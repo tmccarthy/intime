@@ -2,7 +2,7 @@ package au.id.tmm.intime.scalacheck
 
 import java.time._
 
-import au.id.tmm.intime.std.implicits.all._
+import au.id.tmm.intime.std.implicits._
 import com.github.ghik.silencer.silent
 import org.scalacheck.Shrink
 
