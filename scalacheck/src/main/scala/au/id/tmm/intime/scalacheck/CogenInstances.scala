@@ -6,9 +6,6 @@ import org.scalacheck.Cogen
 
 trait CogenInstances {
 
-  implicit val durationCogen: Cogen[Duration] =
-    Cogen[(Long, Int)].contramap(d => (d.getSeconds, d.getNano))
-
   implicit val instantCogen: Cogen[Instant] =
     Cogen[(Long, Int)].contramap(i => (i.getEpochSecond, i.getNano))
 
@@ -44,9 +41,6 @@ trait CogenInstances {
 
   implicit val zonedDateTimeCogen: Cogen[ZonedDateTime] =
     Cogen[(LocalDateTime, ZoneId)].contramap(dt => (dt.toLocalDateTime, dt.getZone))
-
-  implicit val dayOfWeekCogen: Cogen[DayOfWeek] =
-    Cogen[Int].contramap(d => d.getValue)
 
   implicit val periodCogen: Cogen[Period] =
     Cogen[(Int, Int, Int)].contramap(p => (p.getYears, p.getMonths, p.getDays))

@@ -14,19 +14,11 @@ trait ArbitraryInstances {
   private val minInstantSeconds = -31557014167219200L
   private val maxInstantSeconds = 31556889864403199L
 
-  private val genDuration: Gen[Duration] =
-    for {
-      seconds        <- arbitrary[Int] // This should probably be a Long, but it causes overflows
-      nanoAdjustment <- genField(NANO_OF_SECOND)
-    } yield Duration.ofSeconds(seconds, nanoAdjustment)
-
   private val genInstant: Gen[Instant] =
     for {
       seconds        <- Gen.choose(minInstantSeconds, maxInstantSeconds)
       nanoAdjustment <- genField(NANO_OF_SECOND)
     } yield Instant.ofEpochSecond(seconds, nanoAdjustment)
-
-  private val genMonth: Gen[Month] = Gen.oneOf(Month.values.toIndexedSeq)
 
   private val genYearMonth: Gen[YearMonth] =
     for {
@@ -97,16 +89,6 @@ trait ArbitraryInstances {
       zoneId        <- genZoneId
     } yield ZonedDateTime.of(localDateTime, zoneId)
 
-  private val genDayOfWeek: Gen[DayOfWeek] = Gen.oneOf(
-    DayOfWeek.MONDAY,
-    DayOfWeek.TUESDAY,
-    DayOfWeek.WEDNESDAY,
-    DayOfWeek.THURSDAY,
-    DayOfWeek.FRIDAY,
-    DayOfWeek.SATURDAY,
-    DayOfWeek.SUNDAY,
-  )
-
   private val genPeriod: Gen[Period] =
     for {
       // These should be arbitrary Int values, but if you do that all your tests will overflow,
@@ -116,7 +98,6 @@ trait ArbitraryInstances {
       days   <- arbitrary[Short]
     } yield Period.of(years, months, days)
 
-  implicit val arbitraryDuration: Arbitrary[Duration]             = Arbitrary(genDuration)
   implicit val arbitraryInstant: Arbitrary[Instant]               = Arbitrary(genInstant)
   implicit val arbitraryMonth: Arbitrary[Month]                   = Arbitrary(genMonth)
   implicit val arbitraryYearMonth: Arbitrary[YearMonth]           = Arbitrary(genYearMonth)
@@ -129,7 +110,6 @@ trait ArbitraryInstances {
   implicit val arbitraryOffsetDateTime: Arbitrary[OffsetDateTime] = Arbitrary(genOffsetDateTime)
   implicit val arbitraryOffsetTime: Arbitrary[OffsetTime]         = Arbitrary(genOffsetTime)
   implicit val arbitraryZonedDateTime: Arbitrary[ZonedDateTime]   = Arbitrary(genZonedDateTime)
-  implicit val arbitraryDayOfWeek: Arbitrary[DayOfWeek]           = Arbitrary(genDayOfWeek)
   implicit val arbitraryPeriod: Arbitrary[Period]                 = Arbitrary(genPeriod)
 
 }

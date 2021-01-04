@@ -6,7 +6,7 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class ArbitraryInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
-  "arbitrary durations" should "be valid" in forAll(arbitraryDuration)(_ => succeed)
+  "arbitrary durations" should "be valid" in forAll(intimeArbitraryForDuration)(_ => succeed)
   "arbitrary instants" should "be valid" in forAll(arbitraryInstant)(_ => succeed)
   "arbitrary years" should "be valid" in forAll(intimeArbitraryForYear)(_ => succeed)
   "arbitrary months" should "be valid" in forAll(arbitraryMonth)(_ => succeed)
@@ -20,7 +20,7 @@ class ArbitraryInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCh
   "arbitrary offsetDateTimes" should "be valid" in forAll(arbitraryOffsetDateTime)(_ => succeed)
   "arbitrary offsetTimes" should "be valid" in forAll(arbitraryOffsetTime)(_ => succeed)
   "arbitrary zonedDateTimes" should "be valid" in forAll(arbitraryZonedDateTime)(_ => succeed)
-  "arbitrary dayOfWeeks" should "be valid" in forAll(arbitraryDayOfWeek)(_ => succeed)
+  "arbitrary dayOfWeeks" should "be valid" in forAll(intimeArbitraryForDayOfWeek)(_ => succeed)
   "arbitrary periods" should "be valid" in forAll(arbitraryPeriod)(_ => succeed)
 
 }

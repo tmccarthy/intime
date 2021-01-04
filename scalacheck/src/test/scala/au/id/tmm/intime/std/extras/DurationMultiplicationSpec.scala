@@ -2,7 +2,7 @@ package au.id.tmm.intime.std.extras
 
 import java.time.Duration
 
-import au.id.tmm.intime.scalacheck.arbitraryDuration
+import au.id.tmm.intime.scalacheck.duration._
 import au.id.tmm.intime.std.extras.TestingGens._
 import au.id.tmm.intime.std.syntax.duration._
 import org.scalacheck.{Gen, Prop}

@@ -2,7 +2,7 @@ package au.id.tmm.intime.std.extras
 
 import java.time.Duration
 
-import au.id.tmm.intime.scalacheck.chooseDuration
+import au.id.tmm.intime.scalacheck.duration.intimeChooseForDuration
 import au.id.tmm.intime.std.NANOS_PER_SECOND
 import org.scalacheck.Gen
 

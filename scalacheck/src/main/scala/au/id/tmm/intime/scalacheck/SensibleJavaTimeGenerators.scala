@@ -53,7 +53,7 @@ trait SensibleJavaTimeGenerators {
     days   <- Gen.choose(0, 31)
   } yield Period.of(years, months, days)
 
-  val genSensibleDuration: Gen[Duration] = chooseDuration.choose(
+  val genSensibleDuration: Gen[Duration] = intimeChooseForDuration.choose(
     min = Duration.ofDays(365 * 100).negated,
     max = Duration.ofDays(365 * 100),
   )

@@ -3,7 +3,7 @@ package au.id.tmm.intime.cats.instances
 import java.time.Duration
 
 import au.id.tmm.intime.cats.instances.duration._
-import au.id.tmm.intime.scalacheck._
+import au.id.tmm.intime.scalacheck.duration._
 import cats.kernel.laws.discipline.{CommutativeGroupTests, HashTests, OrderTests}
 import cats.tests.CatsSuite
 

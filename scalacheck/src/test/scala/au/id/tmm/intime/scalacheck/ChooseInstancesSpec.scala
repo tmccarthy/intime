@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
 
 class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyChecks {
 
-  testChooseRange[Duration](chooseDuration)
+  testChooseRange[Duration](intimeChooseForDuration)
   testChooseRange[Instant](chooseInstant)
   testChooseRange[Year](intimeChooseForYear)
   testChooseRange[Month](chooseMonth)
@@ -23,7 +23,7 @@ class ChooseInstancesSpec extends AnyFlatSpec with ScalaCheckDrivenPropertyCheck
   testChooseRange[LocalTime](chooseLocalTime)
   testChooseRange[LocalDateTime](chooseLocalDateTime)
   testChooseRange[ZoneOffset](chooseZoneOffset)
-  testChooseRange[DayOfWeek](chooseDayOfWeek)
+  testChooseRange[DayOfWeek](intimeChooseForDayOfWeek)
   testChooseRange[ZonedDateTime](chooseZonedDateTime, hasOffset = true)
   testChooseRange[OffsetDateTime](chooseOffsetDateTime, hasOffset = true)
   testChooseRange[OffsetTime](chooseOffsetTime, hasOffset = true)
